@@ -4,7 +4,8 @@ const WebSocket = require('ws');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+//const wss = new WebSocket.Server({ server });
+const wss = new WebSocket('wss://nkengrr.onrender.com');
 
 let clients = []; // { ws, role, name }
 let currentWord = null;
