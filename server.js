@@ -32,7 +32,6 @@ wss.on('connection', (ws) => {
     let name = `Игрок${Math.floor(Math.random() * 100)}`;
     let role = 'player';
 
-    // Если нет ведущего — назначаем его
     if (!leader) {
         leader = ws;
         role = 'leader';
@@ -42,44 +41,52 @@ wss.on('connection', (ws) => {
 
     clients.push({ ws, role, name });
 
-    // Отправляем роль новому игроку
     ws.send(JSON.stringify({ type: 'role', role, name }));
-
-    // Отправляем уже нарисованное
     ws.send(JSON.stringify({ type: 'init-draw', lines: drawingHistory }));
 
     ws.on('message', (msg) => {
         let data;
-        try {
-            data = JSON.parse(msg);
-        } catch {
-            return;
-        }
+        try { data = JSON.parse(msg); } catch { return; }
 
-        // Чат
-        if (data.type === 'chat') {
+        // 📌 Чат: ведущий не пишет
+        if (data.type === 'chat' && role === 'player') {
             broadcast({ type: 'chat', text: `${name}: ${data.text}` });
 
-            // Проверка на угаданное слово
-            if (role === 'player' && data.text.trim().toLowerCase() === currentWord.toLowerCase()) {
+            // 📌 Проверка угадывания
+            if (data.text.trim().toLowerCase() === currentWord.toLowerCase()) {
                 broadcast({ type: 'system', text: `${name} угадал слово "${currentWord}"!` });
-                ws.send(JSON.stringify({ type: 'start-button' }));
+
+                // Делаем угадавшего ведущим
+                leader = ws;
+                currentWord = words[Math.floor(Math.random() * words.length)];
+                drawingHistory = [];
+
+                // Перераздаём роли
+                clients.forEach(c => {
+                    if (c.ws === leader) {
+                        c.role = 'leader';
+                        c.ws.send(JSON.stringify({ type: 'word', word: currentWord }));
+                        c.ws.send(JSON.stringify({ type: 'role', role: 'leader', name: c.name }));
+                    } else {
+                        c.role = 'player';
+                        c.ws.send(JSON.stringify({ type: 'role', role: 'player', name: c.name }));
+                    }
+                });
+
+                broadcast({ type: 'clear-canvas' });
             }
         }
 
-        // Рисование
         if (data.type === 'draw' && role === 'leader') {
             drawingHistory.push({ prevX: data.prevX, prevY: data.prevY, x: data.x, y: data.y });
             broadcast(data, ws);
         }
 
-        // Очистка
         if (data.type === 'clear-canvas' && role === 'leader') {
             drawingHistory = [];
             broadcast({ type: 'clear-canvas' });
         }
 
-        // Старт новой игры
         if (data.type === 'start-game') {
             leader = ws;
             role = 'leader';
