@@ -1,111 +1,124 @@
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
+import express from "express";
+import { createServer } from "http";
+import { WebSocketServer } from "ws";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const server = http.createServer(app);
-//const wss = new WebSocket.Server({ server });
-const wss = new WebSocket('wss://nkengrr.onrender.com');
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
 
-let clients = []; // { ws, role, name }
-let currentWord = null;
-let drawHistory = [];  // сюда будут сохраняться все линии
-const words = ['кошка', 'машина', 'дерево', 'телефон', 'река', 'солнце'];
+// Раздаём клиентские файлы
+app.use(express.static(path.join(__dirname, "public")));
 
-function chooseWord() {
-    currentWord = words[Math.floor(Math.random() * words.length)];
-}
+// Игровая логика
+let clients = [];
+let canvasHistory = [];
+let currentWord = "";
+let leader = null;
 
 function broadcast(msg, excludeWs = null) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN && client !== excludeWs) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === 1 && client !== excludeWs) {
             client.send(msg);
         }
     });
 }
 
-function broadcastRoles() {
-    clients.forEach(c => {
-        c.ws.send(JSON.stringify({ type: 'role', role: c.role, name: c.name }));
-    });
+function getRandomWord() {
+    const words = ["кошка", "собака", "машина", "дерево", "книга"];
+    return words[Math.floor(Math.random() * words.length)];
 }
 
-function makeLeader(player) {
-    clients.forEach(c => c.role = 'player');
-    player.role = 'leader';
-}
+wss.on("connection", (ws) => {
+    console.log("Новый игрок подключился");
 
-wss.on('connection', (ws) => {
-    const role = clients.length === 0 ? 'leader' : 'player';
-    const name = `Игрок${Math.floor(Math.random() * 1000)}`;
-    clients.push({ ws, role, name });
-
-    ws.send(JSON.stringify({ type: 'role', role, name }));
-
-    if (role === 'leader') {
-        chooseWord();
-        ws.send(JSON.stringify({ type: 'word', word: currentWord }));
+    // Присваиваем роль
+    let role, name;
+    if (!leader) {
+        leader = ws;
+        role = "leader";
+        name = "Ведущий";
+        currentWord = getRandomWord();
+        ws.send(JSON.stringify({ type: "word", word: currentWord }));
+    } else {
+        role = "player";
+        name = `Игрок${Math.floor(Math.random() * 100)}`;
     }
 
-    // Отправляем новому клиенту всю историю линий, чтобы он сразу увидел текущий рисунок
-    drawHistory.forEach(line => {
-    	ws.send(JSON.stringify({ type: 'draw', ...line }));
-	});
-    
-    ws.on('message', (msg) => {
+    clients.push({ ws, role, name });
+
+    ws.send(JSON.stringify({ type: "role", role, name }));
+
+    // Отправляем историю рисунка новому игроку
+    canvasHistory.forEach((line) => {
+        ws.send(JSON.stringify(line));
+    });
+
+    ws.on("message", (msg) => {
         let data;
         try {
             data = JSON.parse(msg);
         } catch {
+            console.log("Не удалось распарсить:", msg.toString());
             return;
         }
 
-        const player = clients.find(c => c.ws === ws);
-
-        if (!player) return;
-
-        if (data.type === 'chat' && player.role === 'player') {
-            // Проверка слова
-            if (data.text.trim().toLowerCase() === currentWord.toLowerCase()) {
-                broadcast(JSON.stringify({ type: 'system', text: `${player.name} угадал слово!` }));
-                makeLeader(player);
-                player.ws.send(JSON.stringify({ type: 'start-button' }));
-            } else {
-                broadcast(JSON.stringify({ type: 'chat', text: `${player.name}: ${data.text}` }));
+        if (data.type === "draw") {
+            const player = clients.find((c) => c.ws === ws);
+            if (player && player.role === "leader") {
+                canvasHistory.push(data);
+                broadcast(JSON.stringify(data), ws);
             }
         }
 
-	if (data.type === 'draw' && player.role === 'leader') {
-    		console.log("Draw received:", data);
-    		drawHistory.push({ prevX: data.prevX, prevY: data.prevY, x: data.x, y: data.y });
-   		broadcast(msg); // шлем всем
-    		console.log("Broadcast draw to clients");
-	}
+        if (data.type === "clear-canvas") {
+            canvasHistory = [];
+            broadcast(JSON.stringify({ type: "clear-canvas" }));
+        }
 
-        if (data.type === 'start-game' && player.role === 'leader') {
-            chooseWord();
-            player.ws.send(JSON.stringify({ type: 'word', word: currentWord }));
-            broadcastRoles();
-	    drawHistory = [];
-            broadcast(JSON.stringify({ type: 'clear-canvas' }));
+        if (data.type === "chat") {
+            broadcast(JSON.stringify({ type: "chat", text: `${name}: ${data.text}` }));
+            if (role === "player" && data.text.toLowerCase() === currentWord.toLowerCase()) {
+                ws.send(JSON.stringify({ type: "system", text: "Вы угадали!" }));
+                broadcast(JSON.stringify({ type: "system", text: `${name} угадал слово!` }), ws);
+                ws.send(JSON.stringify({ type: "start-button" }));
+            }
+        }
+
+        if (data.type === "start-game") {
+            leader = ws;
+            role = "leader";
+            currentWord = getRandomWord();
+            ws.send(JSON.stringify({ type: "word", word: currentWord }));
+            ws.send(JSON.stringify({ type: "role", role, name }));
+            broadcast(JSON.stringify({ type: "role", role: "player", name }));
+            broadcast(JSON.stringify({ type: "clear-canvas" }));
+            canvasHistory = [];
         }
     });
 
-    ws.on('close', () => {
-        clients = clients.filter(c => c.ws !== ws);
-
-        if (clients.length === 0) return;
-
-        if (clients.find(c => c.role === 'leader') == null) {
-            makeLeader(clients[0]);
-            chooseWord();
-            clients[0].ws.send(JSON.stringify({ type: 'word', word: currentWord }));
-            broadcastRoles();
-            broadcast(JSON.stringify({ type: 'clear-canvas' }));
+    ws.on("close", () => {
+        console.log("Игрок отключился");
+        clients = clients.filter((c) => c.ws !== ws);
+        if (leader === ws) {
+            leader = null;
+            if (clients.length > 0) {
+                leader = clients[0].ws;
+                clients[0].role = "leader";
+                currentWord = getRandomWord();
+                leader.send(JSON.stringify({ type: "word", word: currentWord }));
+                leader.send(JSON.stringify({ type: "role", role: "leader", name: clients[0].name }));
+            }
         }
     });
 });
 
-app.use(express.static('public'));
-
-server.listen(3000, () => console.log('Сервер запущен http://localhost:3000'));
+// Render даёт порт через process.env.PORT
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+});
