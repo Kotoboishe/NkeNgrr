@@ -8,13 +8,10 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
     console.log('✅ Клиент подключился');
-
     ws.send(JSON.stringify({ type: 'system', text: 'Добро пожаловать!' }));
 
     ws.on('message', (msg) => {
-        console.log('📩 Получено:', msg.toString());
-
-        // Рассылаем всем
+        // Пересылаем сообщение ВСЕМ подключенным
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(msg.toString());
