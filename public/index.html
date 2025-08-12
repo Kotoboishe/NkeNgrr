@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Крокодил: ведущий и игроки</title>
+    <meta charset="UTF-8" />
+    <title>Крокодил</title>
     <style>
         body { font-family: sans-serif; }
         canvas { border: 1px solid black; cursor: crosshair; display: block; margin-bottom: 10px; }
@@ -12,22 +12,36 @@
 <body>
     <h1>Крокодил</h1>
     <p id="role-info">Ваша роль: ...</p>
+    <p id="word-info"></p>
 
     <canvas id="canvas" width="800" height="400"></canvas>
 
-    <input id="msg" placeholder="Введите сообщение">
+    <input id="msg" placeholder="Введите сообщение" />
     <button id="send">Отправить</button>
+    <button id="start" style="display:none;">Начать игру</button>
 
     <div id="log"></div>
 
     <script>
         const ws = new WebSocket(`ws://${location.host}`);
+
         const log = document.getElementById('log');
         const input = document.getElementById('msg');
         const btn = document.getElementById('send');
         const roleInfo = document.getElementById('role-info');
+        const wordInfo = document.getElementById('word-info');
+        const startBtn = document.getElementById('start');
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
 
         let role = null;
+        let name = null;
+        let drawing = false;
+        let prevX = 0, prevY = 0;
 
         function addLog(text) {
             const div = document.createElement('div');
@@ -36,30 +50,71 @@
             log.scrollTop = log.scrollHeight;
         }
 
-        ws.onopen = () => addLog('🔗 Соединение установлено');
+        ws.onopen = () => {
+            console.log('Connected to server');
+        };
 
         ws.onmessage = (e) => {
-            const data = JSON.parse(e.data);
+            if (typeof e.data === "string") {
+        	// Просто парсим строку JSON
+        	handleMessage(e.data);
+    		} else if (e.data instanceof Blob) {
+        	// Читаем Blob как текст асинхронно
+       		const reader = new FileReader();
+        	reader.onload = () => {
+           	 handleMessage(reader.result);
+        };
+        	reader.readAsText(e.data);
+    		}
+        };
 
-            if (data.type === 'role') {
-                role = data.role;
-                roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'}`;
+	function handleMessage(message) {
+    		console.log("RAW message received:", message);
+    		const data = JSON.parse(message);
+
+    		if (data.type === 'role') {
+                	role = data.role;
+                	name = data.name;
+                	roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'} (${name})`;
+
                 if (role === 'leader') {
                     input.disabled = true;
                     btn.disabled = true;
-                }
-                if (role === 'player') {
+                    canvas.style.pointerEvents = 'auto';
+                } else {
+                    input.disabled = false;
+                    btn.disabled = false;
                     canvas.style.pointerEvents = 'none';
+                    wordInfo.textContent = '';
                 }
+            	}
+
+            if (data.type === 'word') {
+                wordInfo.textContent = `Ваше слово: ${data.word}`;
             }
 
             if (data.type === 'chat') {
-                addLog(`💬 ${data.text}`);
+                addLog(data.text);
             }
+
+            if (data.type === 'system') {
+                addLog(`⚡ ${data.text}`);
+            }
+
             if (data.type === 'draw') {
+                console.log('Получено draw:', data);
                 drawLine(data.prevX, data.prevY, data.x, data.y, false);
             }
-        };
+
+            if (data.type === 'start-button') {
+                startBtn.style.display = 'inline';
+            }
+
+            if (data.type === 'clear-canvas') {
+		 console.log('Очистка холста');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+	}
 
         btn.onclick = sendMessage;
         input.onkeydown = (e) => { if (e.key === 'Enter') sendMessage(); };
@@ -72,10 +127,10 @@
             }
         }
 
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let drawing = false;
-        let prevX = 0, prevY = 0;
+        startBtn.onclick = () => {
+            ws.send(JSON.stringify({ type: 'start-game' }));
+            startBtn.style.display = 'none';
+        };
 
         canvas.addEventListener('mousedown', (e) => {
             if (role !== 'leader') return;
@@ -99,6 +154,7 @@
         });
 
         function drawLine(x1, y1, x2, y2, emit) {
+            console.log(`Рисуем линию: (${x1},${y1}) -> (${x2},${y2}), emit=${emit}`);
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
