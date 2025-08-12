@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket тест</title>
+</head>
+<body>
+    <h1>WebSocket тест</h1>
+    <input id="msg" placeholder="Введите текст">
+    <button id="send">Отправить</button>
+    <div id="log" style="border:1px solid #000; height:200px; overflow:auto;"></div>
+
+    <script>
+        const ws = new WebSocket(`ws://${location.host}`);
+        const log = document.getElementById('log');
+        const input = document.getElementById('msg');
+        const btn = document.getElementById('send');
+
+        function addLog(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        ws.onopen = () => addLog('🔗 Соединение установлено');
+        ws.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                addLog(`[${data.type}] ${data.text || e.data}`);
+            } catch {
+                addLog(`Получено: ${e.data}`);
+            }
+        };
+
+        btn.onclick = () => {
+            const text = input.value.trim();
+            if (text) {
+                ws.send(JSON.stringify({ type: 'chat', text }));
+                input.value = '';
+            }
+        };
+    </script>
+</body>
+</html>
