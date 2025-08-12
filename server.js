@@ -1,124 +1,111 @@
-import express from "express";
-import { createServer } from "http";
-import { WebSocketServer } from "ws";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const { createServer } = require('http');
+const WebSocket = require('ws');
+const path = require('path');
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocket.Server({ server });
 
-// Раздаём клиентские файлы
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Игровая логика
 let clients = [];
-let canvasHistory = [];
-let currentWord = "";
 let leader = null;
+let currentWord = '';
+let drawingHistory = [];
 
-function broadcast(msg, excludeWs = null) {
-    wss.clients.forEach((client) => {
-        if (client.readyState === 1 && client !== excludeWs) {
+// Слова для угадывания
+const words = ['кот', 'собака', 'машина', 'дом', 'яблоко'];
+
+function broadcast(data, excludeWs = null) {
+    const msg = JSON.stringify(data);
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN && client !== excludeWs) {
             client.send(msg);
         }
     });
 }
 
-function getRandomWord() {
-    const words = ["кошка", "собака", "машина", "дерево", "книга"];
-    return words[Math.floor(Math.random() * words.length)];
-}
+wss.on('connection', (ws) => {
+    console.log('✅ Новый клиент подключен');
 
-wss.on("connection", (ws) => {
-    console.log("Новый игрок подключился");
+    let name = `Игрок${Math.floor(Math.random() * 100)}`;
+    let role = 'player';
 
-    // Присваиваем роль
-    let role, name;
+    // Если нет ведущего — назначаем его
     if (!leader) {
         leader = ws;
-        role = "leader";
-        name = "Ведущий";
-        currentWord = getRandomWord();
-        ws.send(JSON.stringify({ type: "word", word: currentWord }));
-    } else {
-        role = "player";
-        name = `Игрок${Math.floor(Math.random() * 100)}`;
+        role = 'leader';
+        currentWord = words[Math.floor(Math.random() * words.length)];
+        ws.send(JSON.stringify({ type: 'word', word: currentWord }));
     }
 
     clients.push({ ws, role, name });
 
-    ws.send(JSON.stringify({ type: "role", role, name }));
+    // Отправляем роль новому игроку
+    ws.send(JSON.stringify({ type: 'role', role, name }));
 
-    // Отправляем историю рисунка новому игроку
-    canvasHistory.forEach((line) => {
-        ws.send(JSON.stringify(line));
-    });
+    // Отправляем уже нарисованное
+    ws.send(JSON.stringify({ type: 'init-draw', lines: drawingHistory }));
 
-    ws.on("message", (msg) => {
+    ws.on('message', (msg) => {
         let data;
         try {
             data = JSON.parse(msg);
         } catch {
-            console.log("Не удалось распарсить:", msg.toString());
             return;
         }
 
-        if (data.type === "draw") {
-            const player = clients.find((c) => c.ws === ws);
-            if (player && player.role === "leader") {
-                canvasHistory.push(data);
-                broadcast(JSON.stringify(data), ws);
+        // Чат
+        if (data.type === 'chat') {
+            broadcast({ type: 'chat', text: `${name}: ${data.text}` });
+
+            // Проверка на угаданное слово
+            if (role === 'player' && data.text.trim().toLowerCase() === currentWord.toLowerCase()) {
+                broadcast({ type: 'system', text: `${name} угадал слово "${currentWord}"!` });
+                ws.send(JSON.stringify({ type: 'start-button' }));
             }
         }
 
-        if (data.type === "clear-canvas") {
-            canvasHistory = [];
-            broadcast(JSON.stringify({ type: "clear-canvas" }));
+        // Рисование
+        if (data.type === 'draw' && role === 'leader') {
+            drawingHistory.push({ prevX: data.prevX, prevY: data.prevY, x: data.x, y: data.y });
+            broadcast(data, ws);
         }
 
-        if (data.type === "chat") {
-            broadcast(JSON.stringify({ type: "chat", text: `${name}: ${data.text}` }));
-            if (role === "player" && data.text.toLowerCase() === currentWord.toLowerCase()) {
-                ws.send(JSON.stringify({ type: "system", text: "Вы угадали!" }));
-                broadcast(JSON.stringify({ type: "system", text: `${name} угадал слово!` }), ws);
-                ws.send(JSON.stringify({ type: "start-button" }));
-            }
+        // Очистка
+        if (data.type === 'clear-canvas' && role === 'leader') {
+            drawingHistory = [];
+            broadcast({ type: 'clear-canvas' });
         }
 
-        if (data.type === "start-game") {
+        // Старт новой игры
+        if (data.type === 'start-game') {
             leader = ws;
-            role = "leader";
-            currentWord = getRandomWord();
-            ws.send(JSON.stringify({ type: "word", word: currentWord }));
-            ws.send(JSON.stringify({ type: "role", role, name }));
-            broadcast(JSON.stringify({ type: "role", role: "player", name }));
-            broadcast(JSON.stringify({ type: "clear-canvas" }));
-            canvasHistory = [];
+            role = 'leader';
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            drawingHistory = [];
+            broadcast({ type: 'clear-canvas' });
+
+            clients.forEach(c => {
+                if (c.ws === ws) {
+                    c.role = 'leader';
+                    c.ws.send(JSON.stringify({ type: 'word', word: currentWord }));
+                    c.ws.send(JSON.stringify({ type: 'role', role: 'leader', name: c.name }));
+                } else {
+                    c.role = 'player';
+                    c.ws.send(JSON.stringify({ type: 'role', role: 'player', name: c.name }));
+                }
+            });
         }
     });
 
-    ws.on("close", () => {
-        console.log("Игрок отключился");
-        clients = clients.filter((c) => c.ws !== ws);
-        if (leader === ws) {
-            leader = null;
-            if (clients.length > 0) {
-                leader = clients[0].ws;
-                clients[0].role = "leader";
-                currentWord = getRandomWord();
-                leader.send(JSON.stringify({ type: "word", word: currentWord }));
-                leader.send(JSON.stringify({ type: "role", role: "leader", name: clients[0].name }));
-            }
-        }
+    ws.on('close', () => {
+        console.log('❌ Клиент отключился');
+        clients = clients.filter(c => c.ws !== ws);
+        if (ws === leader) leader = null;
     });
 });
 
-// Render даёт порт через process.env.PORT
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
-});
+server.listen(PORT, () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
