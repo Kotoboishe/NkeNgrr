@@ -9,128 +9,68 @@
   #chat { height: 150px; overflow-y: auto; border: 1px solid black; margin-bottom: 10px; padding: 5px; }
 </style>
 </head>
+
 <body>
-<h1>Крокодил</h1>
-<div id="roleInfo"></div>
-<div id="wordInfo"></div>
-<canvas id="canvas" width="500" height="400"></canvas>
-<div id="chat"></div>
-<input id="input" placeholder="Сообщение">
-<button id="btn">Отправить</button>
-<button id="clearBtn">Очистить холст</button>
 
-<script>
-const ws = new WebSocket(`wss://${window.location.host}`);
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const chat = document.getElementById('chat');
-const input = document.getElementById('input');
-const btn = document.getElementById('btn');
-const clearBtn = document.getElementById('clearBtn');
-const roleInfo = document.getElementById('roleInfo');
-const wordInfo = document.getElementById('wordInfo');
+    <!-- Сюда вставляешь HTML разметку интерфейса -->
+    <div id="game-container">
 
-let role = '';
-let drawing = false;
-let prevX = 0, prevY = 0;
+        <!-- Левая панель инструментов -->
+        <div id="toolbar">
+            <h3>Слово: <span id="leader-word"></span></h3>
 
-function addLog(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-}
+            <!-- Цвет -->
+            <div id="color-palette">
+                <div class="color-row">
+                    <div class="color-swatch" style="background: black;" data-color="#000000"></div>
+                    <div class="color-swatch" style="background: red;" data-color="#ff0000"></div>
+                    <div class="color-swatch" style="background: blue;" data-color="#0000ff"></div>
+                    <div class="color-swatch" style="background: green;" data-color="#00ff00"></div>
+                </div>
+                <div class="color-row">
+                    <div class="color-swatch" style="background: yellow;" data-color="#ffff00"></div>
+                    <div class="color-swatch" style="background: orange;" data-color="#ff8000"></div>
+                    <div class="color-swatch" style="background: purple;" data-color="#800080"></div>
+                    <div class="color-swatch" style="background: brown;" data-color="#a52a2a"></div>
+                </div>
+            </div>
 
-function drawLine(x1, y1, x2, y2, emit) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+            <!-- Инструменты -->
+            <div id="tools">
+                <button class="tool" data-tool="brush">Кисть</button>
+                <button class="tool" data-tool="eraser">Ластик</button>
+                <button class="tool" data-tool="fill">Заливка</button>
+            </div>
 
-    if (!emit) return;
-    ws.send(JSON.stringify({ type: 'draw', prevX: x1, prevY: y1, x: x2, y: y2 }));
-}
+            <!-- Размер кисти/ластика -->
+            <div id="size-container">
+                <label for="size-range">Размер: </label>
+                <input type="range" id="size-range" min="1" max="50" value="5">
+            </div>
 
-canvas.addEventListener('mousedown', (e) => {
-    if (role !== 'leader') return;
-    drawing = true;
-    prevX = e.offsetX;
-    prevY = e.offsetY;
-});
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mousemove', (e) => {
-    if (!drawing) return;
-    drawLine(prevX, prevY, e.offsetX, e.offsetY, true);
-    prevX = e.offsetX;
-    prevY = e.offsetY;
-});
+            <!-- Очистка холста -->
+            <button id="clear-canvas-btn">Очистить холст</button>
+        </div>
 
-//btn.onclick = () => {
-//    if (!input.value) return;
-//    ws.send(JSON.stringify({ type: 'chat', text: input.value }));
-//    input.value = '';
-//};
+        <!-- Центральная часть — холст -->
+        <canvas id="canvas" width="800" height="600"></canvas>
 
-// Отправка по кнопке
-btn.addEventListener('click', () => {
-    sendMessage();
-});
+        <!-- Правая панель — игроки и чат -->
+        <div id="sidebar">
+            <div id="players">
+                <h3>Игроки</h3>
+                <ul id="player-list"></ul>
+            </div>
+            <div id="chat">
+                <h3>Чат</h3>
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Написать сообщение...">
+                <button id="chat-btn">Отправить</button>
+            </div>
+        </div>
+    </div>
 
-// Отправка по Enter
-input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) { 
-        e.preventDefault(); // чтобы не добавлялся перенос строки
-        sendMessage();
-    }
-});
-
-function sendMessage() {
-    const text = input.value.trim();
-    if (text) {
-        ws.send(JSON.stringify({ type: 'chat', text }));
-        input.value = '';
-    }
-}
-
-
-clearBtn.onclick = () => {
-    if (role === 'leader') {
-        ws.send(JSON.stringify({ type: 'clear-canvas' }));
-    }
-};
-
-ws.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-
-    if (data.type === 'role') {
-        role = data.role;
-        roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'} (${data.name})`;
-        input.disabled = (role === 'leader');
-        btn.disabled = (role === 'leader');
-        canvas.style.pointerEvents = (role === 'leader') ? 'auto' : 'none';
-        if (role !== 'leader') wordInfo.textContent = '';
-    }
-
-    if (data.type === 'word') {
-        wordInfo.textContent = `Ваше слово: ${data.word}`;
-    }
-
-    if (data.type === 'chat') {
-        addLog(data.text);
-    }
-
-    if (data.type === 'system') {
-        addLog(`⚡ ${data.text}`);
-    }
-
-    if (data.type === 'draw') {
-        drawLine(data.prevX, data.prevY, data.x, data.y, false);
-    }
-
-    if (data.type === 'clear-canvas') {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-};
-</script>
+    <!-- JS -->
+    <script src="script.js"></script>
 </body>
 </html>

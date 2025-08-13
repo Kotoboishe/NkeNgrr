@@ -42,6 +42,14 @@ function sendRole(ws, role, name) {
     ws.send(JSON.stringify({ type: 'role', role, name }));
 }
 
+function sendPlayerList() {
+    const list = clients.map(c => ({
+        name: c.name,
+        role: c.ws === leader ? 'leader' : 'player'
+    }));
+    broadcast(JSON.stringify({ type: 'player-list', players: list }));
+}
+
 // Новый раунд
 function startNewRound(newLeader) {
     leader = newLeader;
@@ -58,6 +66,7 @@ function startNewRound(newLeader) {
         }
     });
 
+    sendPlayerList(); // обновляем список игроков
     broadcast(JSON.stringify({ type: 'system', text: 'Новый раунд начался!' }));
 }
 
@@ -65,6 +74,7 @@ function startNewRound(newLeader) {
 wss.on('connection', (ws) => {
     const name = `Игрок${Math.floor(Math.random() * 100)}`;
     clients.push({ ws, name, role: 'player' });
+    sendPlayerList(); // обновляем список игроков
 
     if (!leader) {
         leader = ws;
@@ -119,6 +129,8 @@ wss.on('connection', (ws) => {
         clients = clients.filter(c => c.ws !== ws);
         if (ws === leader && clients.length > 0) {
             startNewRound(clients[0].ws);
+        } else {
+            sendPlayerList();
         }
     });
 });

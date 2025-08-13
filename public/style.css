@@ -1,0 +1,61 @@
+* { box-sizing: border-box; }
+
+#game-container {
+    display: flex;
+    height: 100vh;
+    gap: 10px;
+    padding: 5px;
+    background: #f7f7f7;
+}
+
+/* Левая панель */
+#toolbar {
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #ddd;
+    padding: 10px;
+}
+
+#color-palette { display: flex; flex-direction: column; gap: 5px; }
+.color-row { display: flex; gap: 5px; }
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+/* Инструменты */
+#tools { display: flex; flex-direction: column; gap: 5px; }
+.tool { cursor: pointer; }
+
+/* Размер кисти/ластика */
+#size-container { display: flex; flex-direction: column; gap: 5px; }
+
+/* Центральный холст */
+#canvas {
+    flex-grow: 1;
+    border: 1px solid #000;
+    background: #fff;
+}
+
+/* Правая панель */
+#sidebar {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#players, #chat {
+    background: #e0e0e0;
+    padding: 5px;
+    flex-shrink: 0;
+}
+
+#player-list { list-style: none; padding: 0; margin: 0; }
+#chat-messages { height: 300px; overflow-y: auto; padding: 5px; border-bottom: 1px solid #ccc; }
+#chat input { width: calc(100% - 60px); }
+#chat button { width: 50px; }
