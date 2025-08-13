@@ -65,11 +65,33 @@ canvas.addEventListener('mousemove', (e) => {
     prevY = e.offsetY;
 });
 
-btn.onclick = () => {
-    if (!input.value) return;
-    ws.send(JSON.stringify({ type: 'chat', text: input.value }));
-    input.value = '';
-};
+//btn.onclick = () => {
+//    if (!input.value) return;
+//    ws.send(JSON.stringify({ type: 'chat', text: input.value }));
+//    input.value = '';
+//};
+
+// Отправка по кнопке
+btn.addEventListener('click', () => {
+    sendMessage();
+});
+
+// Отправка по Enter
+input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { 
+        e.preventDefault(); // чтобы не добавлялся перенос строки
+        sendMessage();
+    }
+});
+
+function sendMessage() {
+    const text = input.value.trim();
+    if (text) {
+        ws.send(JSON.stringify({ type: 'chat', text }));
+        input.value = '';
+    }
+}
+
 
 clearBtn.onclick = () => {
     if (role === 'leader') {
