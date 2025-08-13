@@ -1,6 +1,7 @@
 {
   "name": "vk-crocodile",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "server.js",
   "scripts": {
