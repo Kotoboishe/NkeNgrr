@@ -7,25 +7,28 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-// Раздаём статические файлы
-app.use(express.static(path.join(__dirname, 'public')));
+// Папка для фронтенда
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
 
-// Если не найден статический файл — отдаём index.html
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Если путь не найден — возвращаем index.html (для SPA)
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// Список игроков и холст
+// Игроки, ведущий, слово, история холста
 let clients = [];
 let leader = null;
 let currentWord = '';
 let drawHistory = [];
 
+// Слово для рисования
 function chooseWord() {
     const words = ['кот', 'собака', 'машина', 'дом', 'дерево', 'река', 'солнце'];
     return words[Math.floor(Math.random() * words.length)];
 }
 
+// Отправка сообщения всем клиентам, кроме excludeWs (если нужно)
 function broadcast(msg, excludeWs = null) {
     wss.clients.forEach(client => {
         if (client.readyState === 1 && client !== excludeWs) {
@@ -34,14 +37,16 @@ function broadcast(msg, excludeWs = null) {
     });
 }
 
+// Установка роли
 function sendRole(ws, role, name) {
     ws.send(JSON.stringify({ type: 'role', role, name }));
 }
 
+// Новый раунд
 function startNewRound(newLeader) {
     leader = newLeader;
     currentWord = chooseWord();
-    drawHistory = []; // Очищаем холст
+    drawHistory = [];
 
     clients.forEach(c => {
         if (c.ws === leader) {
@@ -56,6 +61,7 @@ function startNewRound(newLeader) {
     broadcast(JSON.stringify({ type: 'system', text: 'Новый раунд начался!' }));
 }
 
+// WebSocket
 wss.on('connection', (ws) => {
     const name = `Игрок${Math.floor(Math.random() * 100)}`;
     clients.push({ ws, name, role: 'player' });
@@ -65,7 +71,7 @@ wss.on('connection', (ws) => {
         startNewRound(ws);
     } else {
         sendRole(ws, 'player', name);
-        // Отправляем историю рисования
+        // Отправка истории холста
         drawHistory.forEach(line => ws.send(JSON.stringify(line)));
     }
 
@@ -89,7 +95,7 @@ wss.on('connection', (ws) => {
         // Чат
         if (data.type === 'chat') {
             const player = clients.find(c => c.ws === ws);
-            if (player.role === 'leader') return; // Ведущий не пишет в чат
+            if (player.role === 'leader') return;
 
             broadcast(JSON.stringify({ type: 'chat', text: `${player.name}: ${data.text}` }));
 
