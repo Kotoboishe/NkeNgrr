@@ -89,13 +89,29 @@
             const data = JSON.parse(e.data);
 
             if (data.type === 'role') {
-                role = data.role;
-                roleInfo.textContent = `Ваша роль: ${role}`;
-            }
+		    role = data.role;
+		    name = data.name;
+		    roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'} (${name})`;
+
+ 		   if (role === 'leader') {
+   		     input.disabled = true;
+   		     btn.disabled = true;
+  		      canvas.style.pointerEvents = 'auto';
+ 		   } else {
+      		  	input.disabled = false;
+      			btn.disabled = false;
+       			canvas.style.pointerEvents = 'none';
+        		wordInfo.textContent = '';
+    			}
+		}
 
             if (data.type === 'word') {
                 wordInfo.textContent = `Ваше слово: ${data.word}`;
             }
+
+		if (data.type === 'clear-word') {
+		    wordInfo.textContent = '';
+		}
 
             if (data.type === 'chat') {
                 addLog(data.text);

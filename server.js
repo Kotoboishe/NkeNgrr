@@ -26,6 +26,27 @@ function broadcast(data, excludeWs = null) {
     });
 }
 
+function assignLeader(newLeaderWs) {
+    leader = newLeaderWs;
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    drawingHistory = [];
+
+    clients.forEach(c => {
+        if (c.ws === newLeaderWs) {
+            c.role = "leader";
+            c.ws.send(JSON.stringify({ type: "word", word: currentWord }));
+            c.ws.send(JSON.stringify({ type: "role", role: "leader", name: c.name }));
+        } else {
+            c.role = "player";
+            c.ws.send(JSON.stringify({ type: "role", role: "player", name: c.name }));
+            c.ws.send(JSON.stringify({ type: "clear-word" }));
+        }
+    });
+
+    broadcast({ type: "clear-canvas" });
+}
+
+
 wss.on('connection', (ws) => {
     console.log('✅ Новый клиент подключен');
 
@@ -48,32 +69,14 @@ wss.on('connection', (ws) => {
         let data;
         try { data = JSON.parse(msg); } catch { return; }
 
-        // 📌 Чат: ведущий не пишет
-        if (data.type === 'chat' && role === 'player') {
-            broadcast({ type: 'chat', text: `${name}: ${data.text}` });
+        if (data.type === "chat") {
+            if (role === "leader") return; // ведущий не пишет
+            broadcast({ type: "chat", text: `${name}: ${data.text}` });
 
-            // 📌 Проверка угадывания
+            // Проверка угадывания
             if (data.text.trim().toLowerCase() === currentWord.toLowerCase()) {
-                broadcast({ type: 'system', text: `${name} угадал слово "${currentWord}"!` });
-
-                // Делаем угадавшего ведущим
-                leader = ws;
-                currentWord = words[Math.floor(Math.random() * words.length)];
-                drawingHistory = [];
-
-                // Перераздаём роли
-                clients.forEach(c => {
-                    if (c.ws === leader) {
-                        c.role = 'leader';
-                        c.ws.send(JSON.stringify({ type: 'word', word: currentWord }));
-                        c.ws.send(JSON.stringify({ type: 'role', role: 'leader', name: c.name }));
-                    } else {
-                        c.role = 'player';
-                        c.ws.send(JSON.stringify({ type: 'role', role: 'player', name: c.name }));
-                    }
-                });
-
-                broadcast({ type: 'clear-canvas' });
+                broadcast({ type: "system", text: `${name} угадал слово "${currentWord}"!` });
+                assignLeader(ws);
             }
         }
 
@@ -87,24 +90,6 @@ wss.on('connection', (ws) => {
             broadcast({ type: 'clear-canvas' });
         }
 
-        if (data.type === 'start-game') {
-            leader = ws;
-            role = 'leader';
-            currentWord = words[Math.floor(Math.random() * words.length)];
-            drawingHistory = [];
-            broadcast({ type: 'clear-canvas' });
-
-            clients.forEach(c => {
-                if (c.ws === ws) {
-                    c.role = 'leader';
-                    c.ws.send(JSON.stringify({ type: 'word', word: currentWord }));
-                    c.ws.send(JSON.stringify({ type: 'role', role: 'leader', name: c.name }));
-                } else {
-                    c.role = 'player';
-                    c.ws.send(JSON.stringify({ type: 'role', role: 'player', name: c.name }));
-                }
-            });
-        }
     });
 
     ws.on('close', () => {
