@@ -1,24 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Крокодил</title>
+<style>
+  body { font-family: sans-serif; }
+  canvas { border: 1px solid black; display: block; margin-bottom: 10px; }
+  #chat { height: 150px; overflow-y: auto; border: 1px solid black; margin-bottom: 10px; padding: 5px; }
+</style>
+</head>
+<body>
+<h1>Крокодил</h1>
+<div id="roleInfo"></div>
+<div id="wordInfo"></div>
+<canvas id="canvas" width="500" height="400"></canvas>
+<div id="chat"></div>
+<input id="input" placeholder="Сообщение">
+<button id="btn">Отправить</button>
+<button id="clearBtn">Очистить холст</button>
+
 <script>
 const ws = new WebSocket(`wss://${window.location.host}`);
-let role = "";
-let name = "";
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const btn = document.getElementById('btn');
+const clearBtn = document.getElementById('clearBtn');
+const roleInfo = document.getElementById('roleInfo');
+const wordInfo = document.getElementById('wordInfo');
+
+let role = '';
 let drawing = false;
 let prevX = 0, prevY = 0;
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const input = document.getElementById("input");
-const btn = document.getElementById("btn");
-const log = document.getElementById("log");
-const roleInfo = document.getElementById("roleInfo");
-const wordInfo = document.getElementById("wordInfo");
-const clearBtn = document.getElementById("clearBtn");
-
 function addLog(text) {
-    const p = document.createElement("p");
-    p.textContent = text;
-    log.appendChild(p);
-    log.scrollTop = log.scrollHeight;
+    const div = document.createElement('div');
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
 }
 
 function drawLine(x1, y1, x2, y2, emit) {
@@ -28,86 +48,67 @@ function drawLine(x1, y1, x2, y2, emit) {
     ctx.stroke();
 
     if (!emit) return;
-    ws.send(JSON.stringify({ type: "draw", prevX: x1, prevY: y1, x: x2, y: y2 }));
+    ws.send(JSON.stringify({ type: 'draw', prevX: x1, prevY: y1, x: x2, y: y2 }));
 }
 
-canvas.addEventListener("mousedown", (e) => {
-    if (role !== "leader") return;
+canvas.addEventListener('mousedown', (e) => {
+    if (role !== 'leader') return;
     drawing = true;
     prevX = e.offsetX;
     prevY = e.offsetY;
 });
-canvas.addEventListener("mouseup", () => drawing = false);
-canvas.addEventListener("mouseout", () => drawing = false);
-canvas.addEventListener("mousemove", (e) => {
-    if (!drawing || role !== "leader") return;
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mousemove', (e) => {
+    if (!drawing) return;
     drawLine(prevX, prevY, e.offsetX, e.offsetY, true);
     prevX = e.offsetX;
     prevY = e.offsetY;
 });
 
-btn.addEventListener("click", () => {
-    if (!input.value.trim()) return;
-    ws.send(JSON.stringify({ type: "chat", text: input.value }));
-    input.value = "";
-});
+btn.onclick = () => {
+    if (!input.value) return;
+    ws.send(JSON.stringify({ type: 'chat', text: input.value }));
+    input.value = '';
+};
 
-clearBtn.addEventListener("click", () => {
-    if (role !== "leader") return;
-    ws.send(JSON.stringify({ type: "clear-canvas" }));
-});
+clearBtn.onclick = () => {
+    if (role === 'leader') {
+        ws.send(JSON.stringify({ type: 'clear-canvas' }));
+    }
+};
 
 ws.onmessage = (e) => {
-    let data;
-    try { data = JSON.parse(e.data); } catch { return; }
+    const data = JSON.parse(e.data);
 
-    if (data.type === "role") {
+    if (data.type === 'role') {
         role = data.role;
-        name = data.name;
-        roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'} (${name})`;
-
-        if (role === "leader") {
-            input.disabled = true;
-            btn.disabled = true;
-            canvas.style.pointerEvents = "auto";
-            clearBtn.style.display = "inline";
-        } else {
-            input.disabled = false;
-            btn.disabled = false;
-            canvas.style.pointerEvents = "none";
-            clearBtn.style.display = "none";
-        }
+        roleInfo.textContent = `Ваша роль: ${role === 'leader' ? 'Ведущий' : 'Игрок'} (${data.name})`;
+        input.disabled = (role === 'leader');
+        btn.disabled = (role === 'leader');
+        canvas.style.pointerEvents = (role === 'leader') ? 'auto' : 'none';
+        if (role !== 'leader') wordInfo.textContent = '';
     }
 
-    if (data.type === "word") {
+    if (data.type === 'word') {
         wordInfo.textContent = `Ваше слово: ${data.word}`;
     }
 
-    if (data.type === "clear-word") {
-        wordInfo.textContent = "";
-    }
-
-    if (data.type === "chat") {
+    if (data.type === 'chat') {
         addLog(data.text);
     }
 
-    if (data.type === "system") {
+    if (data.type === 'system') {
         addLog(`⚡ ${data.text}`);
     }
 
-    if (data.type === "draw") {
+    if (data.type === 'draw') {
         drawLine(data.prevX, data.prevY, data.x, data.y, false);
     }
 
-    if (data.type === "clear-canvas") {
+    if (data.type === 'clear-canvas') {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    if (data.type === "init-draw") {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        data.lines.forEach(line => {
-            drawLine(line.prevX, line.prevY, line.x, line.y, false);
-        });
     }
 };
 </script>
+</body>
+</html>
