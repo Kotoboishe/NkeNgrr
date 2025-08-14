@@ -146,6 +146,7 @@ canvas.addEventListener('mousemove', (e) => {
 // скрываем курсор, когда мышь покидает холст
 canvas.addEventListener('mouseleave', () => {
     cursorPreview.style.display = 'none';
+    drawing = false; // при выходе с холста прекращаем рисовать
 });
 
 // 💬 отправка чата
