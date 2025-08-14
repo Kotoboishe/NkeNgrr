@@ -1,61 +1,93 @@
-* { box-sizing: border-box; }
-
-#game-container {
-    display: flex;
-    height: 100vh;
-    gap: 10px;
-    padding: 5px;
-    background: #f7f7f7;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-/* Левая панель */
-#toolbar {
-    width: 150px;
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Левая панель инструментов */
+.tools-panel {
+    width: 200px;
+    background: #f0f0f0;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     gap: 15px;
-    background: #ddd;
+}
+
+.tool-section h3 {
+    margin: 0 0 5px;
+}
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.color {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+}
+
+/* Центральная часть с холстом */
+.canvas-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     padding: 10px;
 }
 
-#color-palette { display: flex; flex-direction: column; gap: 5px; }
-.color-row { display: flex; gap: 5px; }
-.color-swatch {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #000;
-    cursor: pointer;
-}
-
-/* Инструменты */
-#tools { display: flex; flex-direction: column; gap: 5px; }
-.tool { cursor: pointer; }
-
-/* Размер кисти/ластика */
-#size-container { display: flex; flex-direction: column; gap: 5px; }
-
-/* Центральный холст */
 #canvas {
-    flex-grow: 1;
     border: 1px solid #000;
-    background: #fff;
 }
 
 /* Правая панель */
-#sidebar {
+.sidebar {
     width: 300px;
+    background: #f9f9f9;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    border-left: 1px solid #ccc;
 }
 
-#players, #chat {
-    background: #e0e0e0;
+.players-section {
+    flex: 0 0 auto;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
     padding: 5px;
-    flex-shrink: 0;
+    background: #fff;
 }
 
-#player-list { list-style: none; padding: 0; margin: 0; }
-#chat-messages { height: 300px; overflow-y: auto; padding: 5px; border-bottom: 1px solid #ccc; }
-#chat input { width: calc(100% - 60px); }
-#chat button { width: 50px; }
+#chatInput {
+    width: calc(100% - 80px);
+    padding: 5px;
+}
+
+#sendBtn {
+    width: 70px;
+    padding: 5px;
+    margin-left: 5px;
+}

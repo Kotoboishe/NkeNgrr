@@ -1,76 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="utf-8">
-<title>Крокодил</title>
-<style>
-  body { font-family: sans-serif; }
-  canvas { border: 1px solid black; display: block; margin-bottom: 10px; }
-  #chat { height: 150px; overflow-y: auto; border: 1px solid black; margin-bottom: 10px; padding: 5px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Крокодил</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-    <!-- Сюда вставляешь HTML разметку интерфейса -->
-    <div id="game-container">
-
-        <!-- Левая панель инструментов -->
-        <div id="toolbar">
-            <h3>Слово: <span id="leader-word"></span></h3>
-
-            <!-- Цвет -->
-            <div id="color-palette">
-                <div class="color-row">
-                    <div class="color-swatch" style="background: black;" data-color="#000000"></div>
-                    <div class="color-swatch" style="background: red;" data-color="#ff0000"></div>
-                    <div class="color-swatch" style="background: blue;" data-color="#0000ff"></div>
-                    <div class="color-swatch" style="background: green;" data-color="#00ff00"></div>
-                </div>
-                <div class="color-row">
-                    <div class="color-swatch" style="background: yellow;" data-color="#ffff00"></div>
-                    <div class="color-swatch" style="background: orange;" data-color="#ff8000"></div>
-                    <div class="color-swatch" style="background: purple;" data-color="#800080"></div>
-                    <div class="color-swatch" style="background: brown;" data-color="#a52a2a"></div>
-                </div>
+<div class="container">
+    <!-- Левая панель инструментов -->
+    <div class="tools-panel">
+        <div class="tool-section">
+            <h3>Цвет</h3>
+            <div class="color-palette">
+                <div class="color" style="background: black" data-color="#000000"></div>
+                <div class="color" style="background: red" data-color="#ff0000"></div>
+                <div class="color" style="background: blue" data-color="#0000ff"></div>
+                <div class="color" style="background: green" data-color="#00ff00"></div>
+                <div class="color" style="background: yellow" data-color="#ffff00"></div>
+                <div class="color" style="background: orange" data-color="#ffa500"></div>
+                <div class="color" style="background: purple" data-color="#800080"></div>
+                <div class="color" style="background: pink" data-color="#ffc0cb"></div>
             </div>
-
-            <!-- Инструменты -->
-            <div id="tools">
-                <button class="tool" data-tool="brush">Кисть</button>
-                <button class="tool" data-tool="eraser">Ластик</button>
-                <button class="tool" data-tool="fill">Заливка</button>
-            </div>
-
-            <!-- Размер кисти/ластика -->
-            <div id="size-container">
-                <label for="size-range">Размер: </label>
-                <input type="range" id="size-range" min="1" max="50" value="5">
-            </div>
-
-            <!-- Очистка холста -->
-            <button id="clear-canvas-btn">Очистить холст</button>
         </div>
-
-        <!-- Центральная часть — холст -->
-        <canvas id="canvas" width="800" height="600"></canvas>
-
-        <!-- Правая панель — игроки и чат -->
-        <div id="sidebar">
-            <div id="players">
-                <h3>Игроки</h3>
-                <ul id="player-list"></ul>
-            </div>
-            <div id="chat">
-                <h3>Чат</h3>
-                <div id="chat-messages"></div>
-                <input type="text" id="chat-input" placeholder="Написать сообщение...">
-                <button id="chat-btn">Отправить</button>
-            </div>
+        <div class="tool-section">
+            <h3>Инструменты</h3>
+            <button id="brushBtn">Кисть</button>
+            <button id="eraserBtn">Ластик</button>
+            <button id="fillBtn">Заливка</button>
+        </div>
+        <div class="tool-section">
+            <h3>Размер</h3>
+            <input type="range" id="sizeSlider" min="1" max="50" value="5">
+        </div>
+        <div class="tool-section">
+            <button id="clearBtn">Очистить холст</button>
         </div>
     </div>
 
-    <!-- JS -->
-    <script src="script.js"></script>
+    <!-- Центральная область с холстом -->
+    <div class="canvas-container">
+        <p id="word">Слово: <span id="currentWord">—</span></p>
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Правая панель с игроками и чатом -->
+    <div class="sidebar">
+        <div class="players-section">
+            <h3>Игроки</h3>
+            <ul id="playersList"></ul>
+        </div>
+        <div class="chat-section">
+            <h3>Чат</h3>
+            <div id="chatMessages" class="chat-messages"></div>
+            <input type="text" id="chatInput" placeholder="Написать сообщение...">
+            <button id="sendBtn">Отправить</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>

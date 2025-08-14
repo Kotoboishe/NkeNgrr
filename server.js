@@ -97,8 +97,29 @@ wss.on('connection', (ws) => {
         if (data.type === 'draw') {
             const player = clients.find(c => c.ws === ws);
             if (player && player.ws === leader) {
-                drawHistory.push(data);
-                broadcast(JSON.stringify(data), ws);
+            // Сохраняем всё, что пришло (включая цвет, размер, инструмент)
+                drawHistory.push({
+                type: 'draw',
+                prevX: data.prevX,
+                prevY: data.prevY,
+                x: data.x,
+                y: data.y,
+                color: data.color,
+                size: data.size,
+                tool: data.tool
+                });
+
+            // Отправляем всем остальным
+            broadcast(JSON.stringify({
+            type: 'draw',
+            prevX: data.prevX,
+            prevY: data.prevY,
+            x: data.x,
+            y: data.y,
+            color: data.color,
+            size: data.size,
+            tool: data.tool
+                }), ws);
             }
         }
 
