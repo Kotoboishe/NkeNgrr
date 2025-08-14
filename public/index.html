@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Крокодил — онлайн-рисовалка</title>
+		<!-- Tailwind CDN -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<style>
+			/* Прячем системный курсор над холстом — рисуем свой */
+			#canvas {
+				cursor: none;
+			}
+		</style>
+	</head>
+	<body class="bg-zinc-900 text-zinc-100 h-screen flex flex-col">
+		<!-- Верхняя панель -->
+		<header
+			class="bg-zinc-800 border-b border-zinc-700 px-4 py-2 flex items-center gap-4"
+		>
+			<div id="roleBar" class="font-semibold">Роль: —</div>
+			<div class="flex-1"></div>
+			<div id="wordBar" class="text-amber-400 font-semibold"></div>
+		</header>
+
+		<main class="flex-1 flex overflow-hidden">
+			<!-- Левая панель инструментов -->
+			<aside
+				class="w-64 shrink-0 bg-zinc-850 bg-zinc-800/60 backdrop-blur px-4 py-3 overflow-auto border-r border-zinc-700"
+			>
+				<h2 class="text-lg font-semibold mb-3">Инструменты</h2>
+
+				<!-- Палитра -->
+				<div class="mb-4">
+					<div class="flex items-center justify-between mb-2">
+						<span class="font-medium">Цвет</span>
+						<div class="flex items-center gap-2">
+							<label class="text-sm inline-flex items-center gap-2">
+								<input
+									id="advancedPalette"
+									type="checkbox"
+									class="accent-amber-400"
+								/>
+								Сложная палитра
+							</label>
+							<div
+								id="currentColorSwatch"
+								class="w-5 h-5 rounded border border-zinc-600"
+							></div>
+						</div>
+					</div>
+					<div id="colorPalette" class="flex flex-wrap gap-2"></div>
+					<input
+						id="colorPicker"
+						type="color"
+						class="mt-2 w-full h-9 rounded border border-zinc-600 bg-zinc-900 hidden"
+					/>
+				</div>
+
+				<!-- Толщина -->
+				<div class="mb-4">
+					<div class="flex items-center justify-between mb-2">
+						<span class="font-medium">Толщина</span>
+						<span id="brushSizeValue" class="text-sm tabular-nums">8 px</span>
+					</div>
+					<input
+						id="brushSize"
+						type="range"
+						min="1"
+						max="60"
+						value="8"
+						class="w-full"
+					/>
+				</div>
+
+				<!-- Кнопки инструментов -->
+				<div class="grid grid-cols-2 gap-2 mb-4">
+					<button
+						id="toolBrush"
+						class="tool-btn bg-blue-600 hover:bg-blue-500 rounded px-3 py-2"
+					>
+						Кисть
+					</button>
+					<button
+						id="toolEraser"
+						class="tool-btn bg-rose-600 hover:bg-rose-500 rounded px-3 py-2"
+					>
+						Ластик
+					</button>
+					<button
+						id="toolFill"
+						class="tool-btn bg-emerald-600 hover:bg-emerald-500 rounded px-3 py-2 col-span-2"
+					>
+						Заливка
+					</button>
+				</div>
+
+				<button
+					id="clearCanvas"
+					class="w-full rounded px-3 py-2 bg-zinc-700 hover:bg-zinc-600"
+				>
+					Очистить холст
+				</button>
+			</aside>
+
+			<!-- Центр: холст (скроллируемая область) -->
+			<section class="flex-1 flex overflow-hidden">
+				<div
+					class="flex-1 overflow-auto bg-zinc-900 flex items-center justify-center relative"
+				>
+					<!-- Обёртка, чтобы курсор-предпросмотр позиционировать абсолютно -->
+					<div id="canvasWrap" class="relative inline-block">
+						<canvas
+							id="canvas"
+							width="1200"
+							height="800"
+							class="bg-white rounded shadow-lg"
+						></canvas>
+						<!-- кастомный курсор -->
+						<div
+							id="cursorPreview"
+							class="pointer-events-none absolute hidden rounded-full border border-zinc-400/60"
+						></div>
+					</div>
+				</div>
+
+				<!-- Правая панель: чат -->
+				<aside
+					class="w-80 shrink-0 bg-zinc-800 border-l border-zinc-700 px-4 py-3 flex flex-col"
+				>
+					<h2 class="text-lg font-semibold mb-3">Чат</h2>
+					<div
+						id="chatBox"
+						class="flex-1 overflow-auto space-y-1 bg-zinc-900/40 rounded border border-zinc-700 p-2"
+					></div>
+					<div class="mt-3 flex gap-2">
+						<input
+							id="chatInput"
+							type="text"
+							placeholder="Напишите сообщение…"
+							class="flex-1 rounded border border-zinc-600 bg-zinc-900 px-3 h-10"
+						/>
+						<button
+							id="sendBtn"
+							class="rounded bg-amber-500 hover:bg-amber-400 text-black px-3 h-10"
+						>
+							Отпр.
+						</button>
+					</div>
+				</aside>
+			</section>
+
+			<!-- Список игроков -->
+			<aside
+				class="w-64 shrink-0 bg-zinc-800 border-l border-zinc-700 px-4 py-3 overflow-auto"
+			>
+				<h2 class="text-lg font-semibold mb-3">Игроки</h2>
+				<ul id="playersList" class="space-y-1"></ul>
+				<div class="mt-4 text-sm text-zinc-300">
+					Вы: <span id="playerName">—</span><br />
+					Роль: <span id="playerRole">—</span>
+				</div>
+			</aside>
+		</main>
+
+		<script src="script.js"></script>
+	</body>
+</html>

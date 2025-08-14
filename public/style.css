@@ -1,0 +1,158 @@
+body {
+	margin: 0;
+	font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.container {
+	display: flex;
+	height: 100vh;
+}
+
+/* Левая панель инструментов */
+.tools-panel {
+	width: 220px;
+	background: #f5f5f7;
+	padding: 12px;
+	box-shadow: 2px 0 6px rgba(0, 0, 0, 0.08);
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.tool-section h3 {
+	margin: 0 0 8px;
+	font-size: 14px;
+	color: #333;
+}
+
+.color-palette {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 6px;
+}
+
+.color {
+	width: 34px;
+	height: 34px;
+	cursor: pointer;
+	border: 1px solid #d0d0d0;
+	border-radius: 6px;
+}
+
+.tools-panel button {
+	padding: 8px 10px;
+	border-radius: 8px;
+	border: 1px solid #d0d0d0;
+	background: #fff;
+	cursor: pointer;
+}
+
+.tools-panel button:hover {
+	background: #f0f0f0;
+}
+
+#sizeValue {
+	font-size: 12px;
+	color: #555;
+}
+
+/* Центральная часть */
+.canvas-container {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 12px;
+}
+
+#word {
+	margin: 6px 0 8px;
+	font-weight: 600;
+}
+
+.canvas-wrapper {
+	position: relative;
+}
+
+#canvas {
+	border: 1px solid #ccc;
+	background: #fff;
+}
+
+/* Превью курсора */
+#cursor-preview {
+	position: fixed; /* по экрану, чтобы не прыгал при скролле */
+	pointer-events: none;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+	display: none;
+	box-sizing: border-box;
+}
+
+/* Правая панель */
+.sidebar {
+	width: 320px;
+	background: #fafafa;
+	display: flex;
+	flex-direction: column;
+	border-left: 1px solid #e0e0e0;
+}
+
+.players-section {
+	padding: 12px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.players-section ul {
+	margin: 6px 0 8px;
+	padding-left: 18px;
+}
+
+.you {
+	font-size: 14px;
+	color: #444;
+}
+
+.chat-section {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+}
+
+.chat-messages {
+	flex: 1;
+	overflow-y: auto;
+	border: 1px solid #ddd;
+	margin-bottom: 8px;
+	padding: 8px;
+	background: #fff;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.chat-input-row {
+	display: flex;
+	gap: 8px;
+}
+
+#chatInput {
+	flex: 1;
+	padding: 8px;
+	border-radius: 8px;
+	border: 1px solid #d0d0d0;
+}
+
+#sendBtn {
+	width: 100px;
+	padding: 8px;
+	border-radius: 8px;
+	border: 1px solid #d0d0d0;
+	background: #fff;
+	cursor: pointer;
+}
+
+#sendBtn:hover {
+	background: #f0f0f0;
+}
