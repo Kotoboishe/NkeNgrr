@@ -1,5 +1,6 @@
 // ====== WebSocket ======
-const ws = new WebSocket(`ws://${location.host}/ws`) // локально ws://
+const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${protocol}://${location.host}/ws`);
 ws.onopen = () => logSystem('Соединение установлено')
 ws.onclose = () => logSystem('Соединение закрыто')
 
