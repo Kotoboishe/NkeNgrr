@@ -15,6 +15,8 @@ const fillBtn = document.getElementById('fillBtn');
 const sizeSlider = document.getElementById('sizeSlider');
 const clearBtn = document.getElementById('clearBtn');
 
+const cursorPreview = document.getElementById('cursor-preview');
+
 let role = '';
 let drawing = false;
 let prevX = 0, prevY = 0;
@@ -67,6 +69,9 @@ function drawLine(x1, y1, x2, y2, color, size, tool, emit) {
 
     ctx.strokeStyle = color;
     ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -114,6 +119,33 @@ canvas.addEventListener('mousemove', (e) => {
     drawLine(prevX, prevY, e.offsetX, e.offsetY, currentColor, currentSize, currentTool, true);
     prevX = e.offsetX;
     prevY = e.offsetY;
+});
+
+// показываем и обновляем курсор при движении мыши по холсту
+canvas.addEventListener('mousemove', (e) => {
+    if (role !== 'leader') {
+        cursorPreview.style.display = 'none';
+        return;
+    }
+
+    cursorPreview.style.display = 'block';
+
+    const x = e.clientX;
+    const y = e.clientY;
+
+    cursorPreview.style.left = `${x}px`;
+    cursorPreview.style.top = `${y}px`;
+    cursorPreview.style.width = `${currentSize}px`;
+    cursorPreview.style.height = `${currentSize}px`;
+    cursorPreview.style.background = currentTool === 'eraser' ? '#fff' : currentColor;
+    cursorPreview.style.border = currentTool === 'eraser'
+        ? '1px solid rgba(0,0,0,0.3)'
+        : '1px solid rgba(0,0,0,0.3)';
+});
+
+// скрываем курсор, когда мышь покидает холст
+canvas.addEventListener('mouseleave', () => {
+    cursorPreview.style.display = 'none';
 });
 
 // 💬 отправка чата
