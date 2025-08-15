@@ -379,22 +379,11 @@ ws.onmessage = e => {
 	}
 
 	if (msg.type === 'draw') {
-		// Рисуем на основе полученных параметров (размер и инструмент обязательны)
-		const size = msg.size ?? 8
-		const erase = msg.tool === 'eraser'
-		const prevSize = brushSize
-		const prevColor = color
-
-		brushSize = size
-		if (!erase && msg.color) color = msg.color
-		ctx.beginPath();
+		ctx.strokeStyle = msg.color;
+        	ctx.lineWidth = msg.size;
+        	ctx.beginPath();
         	ctx.moveTo(msg.prevX, msg.prevY);
         	ctx.lineTo(msg.x, msg.y);
         	ctx.stroke();
-
-		// откат локальных настроек
-		brushSize = prevSize
-		color = prevColor
-		return
 	}
 }
