@@ -146,8 +146,8 @@ function updateCursorPreview(x, y) {
 	const rect = canvas.getBoundingClientRect()
 	const cx = rect.left + x
 	const cy = rect.top + y
-	cursorPreview.style.left = `${cx}px`
-	cursorPreview.style.top = `${cy}px`
+	cursorPreview.style.left = `${cx-brushSize/2}px`
+	cursorPreview.style.top = `${cy-brushSize/2}px`
 	cursorPreview.style.width = `${brushSize}px`
 	cursorPreview.style.height = `${brushSize}px`
 	cursorPreview.style.background = tool === 'eraser' ? '#ffffff' : color
@@ -187,7 +187,7 @@ window.addEventListener('mousemove', e => {
 	const within = isPointerOverCanvas(e)
 	const p = clampToCanvas(getCanvasPos(e))
 	if (within) updateCursorPreview(p.x, p.y)
-	//else cursorPreview.style.display = 'none'
+	else cursorPreview.style.display = 'default'
 
 	if (!drawing || !last || tool === 'fill') return
 
