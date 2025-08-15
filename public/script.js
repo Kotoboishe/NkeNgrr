@@ -142,14 +142,14 @@ clearCanvasBtn.onclick = () => {
 }
 
 //размер холста
-function resizeCanvas() {
-    const canvasWrap = document.getElementById('canvasWrap');
-    const canvas = document.getElementById('canvas');
-    canvas.width = canvasWrap.clientWidth;
-    canvas.height = canvasWrap.clientHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('load', resizeCanvas);
+//function resizeCanvas() {
+//    const canvasWrap = document.getElementById('canvasWrap');
+//    const canvas = document.getElementById('canvas');
+//    canvas.width = canvasWrap.clientWidth;
+//    canvas.height = canvasWrap.clientHeight;
+//}
+//window.addEventListener('resize', resizeCanvas);
+//window.addEventListener('load', resizeCanvas);
 
 
 // ====== Курсор-предпросмотр ======

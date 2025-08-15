@@ -17,7 +17,7 @@
 		<!-- Верхняя панель -->
 		<header class="bg-zinc-800 border-b border-zinc-700 px-4 py-2 flex justify-center items-center relative">
     			<div id="roleBar" class="absolute left-4 font-semibold">Роль: —</div>
-    			<div id="wordBar" class="text-amber-400 font-semibold text-center">Слово</div>
+    			<div id="wordBar" class="text-amber-400 font-semibold text-center"></div>
 		</header>
 
 		<main class="flex-1 flex overflow-hidden">
@@ -101,14 +101,14 @@
 			</aside>
 
 			<!-- Центр: холст  -->
-			<section class="flex-1 flex">
+			<section class="flex-1 flex overflow-hidden">
 				
 				<div
-					class="flex-1 flex items-center justify-center bg-zinc-900 relative"
+					class="flex-1 overflow-auto bg-zinc-900 flex items-center justify-center relative"
 				>
 					<!-- Обёртка, чтобы курсор-предпросмотр позиционировать абсолютно -->
 					<div id="canvasWrap" class="relative inline-block">
-						<canvas id="canvas" class="bg-white rounded shadow-lg w-full h-full"></canvas>
+						<canvas id="canvas" width="1200" height="800" class="bg-white rounded shadow-lg" ></canvas>
 						<!-- кастомный курсор -->
 						<div
 							id="cursorPreview"
