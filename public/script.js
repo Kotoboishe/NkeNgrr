@@ -141,18 +141,17 @@ clearCanvasBtn.onclick = () => {
 	ws.send(JSON.stringify({ type: 'clear-canvas' }))
 }
 
-// ====== Курсор-предпросмотр ======
-//function updateCursorPreview(x, y) {
-//	const rect = canvas.getBoundingClientRect()
-//	const cx = rect.left + x
-//	const cy = rect.top + y
-//	cursorPreview.style.left = `${cx-brushSize/2}px`
-//	cursorPreview.style.top = `${cy-brushSize/2}px`
-//	cursorPreview.style.width = `${brushSize}px`
-//	cursorPreview.style.height = `${brushSize}px`
-//	cursorPreview.style.background = tool === 'eraser' ? '#ffffff' : color
-//	cursorPreview.style.display = myRole === 'leader' ? 'block' : 'none'
-//}
+//размер холста
+function resizeCanvas() {
+    const canvasWrap = document.getElementById('canvasWrap');
+    const canvas = document.getElementById('canvas');
+    canvas.width = canvasWrap.clientWidth;
+    canvas.height = canvasWrap.clientHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', resizeCanvas);
+
+
 // ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
   // Игрок — обычный курсор, превью скрыто

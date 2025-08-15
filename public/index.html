@@ -15,12 +15,9 @@
 	</head>
 	<body class="bg-zinc-900 text-zinc-100 h-screen flex flex-col">
 		<!-- Верхняя панель -->
-		<header
-			class="bg-zinc-800 border-b border-zinc-700 px-4 py-2 flex items-center justify-center relative"
-		>
-			<div id="roleBar" class="font-semibold">Роль: —</div>
-			<div class="flex-1"></div>
-			<div id="wordBar" class="text-amber-400 font-semibold text-center">Слово</div>
+		<header class="bg-zinc-800 border-b border-zinc-700 px-4 py-2 flex justify-center items-center relative">
+    			<div id="roleBar" class="absolute left-4 font-semibold">Роль: —</div>
+    			<div id="wordBar" class="text-amber-400 font-semibold text-center">Слово</div>
 		</header>
 
 		<main class="flex-1 flex overflow-hidden">
@@ -111,12 +108,7 @@
 				>
 					<!-- Обёртка, чтобы курсор-предпросмотр позиционировать абсолютно -->
 					<div id="canvasWrap" class="relative inline-block">
-						<canvas
-							id="canvas"
-							width="1200"
-							height="800"
-							class="bg-white rounded shadow-lg"
-						></canvas>
+						<canvas id="canvas" class="bg-white rounded shadow-lg w-full h-full"></canvas>
 						<!-- кастомный курсор -->
 						<div
 							id="cursorPreview"
