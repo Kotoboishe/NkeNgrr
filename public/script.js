@@ -45,6 +45,8 @@ let tool = 'brush' // brush | eraser | fill
 let brushSize = 8
 let color = '#000000'
 let last = null // {x,y} последняя точка для линий
+let lastX = 0;
+let lastY = 0;
 
 // ====== Палитра ======
 const basicColors = [
@@ -159,6 +161,7 @@ canvas.addEventListener('mousedown', e => {
 	const p = clampToCanvas(getCanvasPos(e))
 	drawing = true
 	last = p
+	[lastX, lastY] = [e.offsetX, e.offsetY];
 
 	if (tool === 'fill') {
 		floodFill(p.x | 0, p.y | 0, hexToRgba(color))
@@ -196,6 +199,8 @@ window.addEventListener('mousemove', e => {
 			type: 'draw',
 			x: p.x,
 			y: p.y,
+			prevX: last.x,
+			prevY: last.y,
 			size: brushSize,
 			tool,
 			color,
@@ -382,7 +387,10 @@ ws.onmessage = e => {
 
 		brushSize = size
 		if (!erase && msg.color) color = msg.color
-		drawDot(msg.x, msg.y, erase)
+		ctx.beginPath();
+        	ctx.moveTo(msg.prevX, msg.prevY);
+        	ctx.lineTo(msg.x, msg.y);
+        	ctx.stroke();
 
 		// откат локальных настроек
 		brushSize = prevSize
