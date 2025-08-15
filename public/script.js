@@ -142,16 +142,45 @@ clearCanvasBtn.onclick = () => {
 }
 
 // ====== Курсор-предпросмотр ======
+//function updateCursorPreview(x, y) {
+//	const rect = canvas.getBoundingClientRect()
+//	const cx = rect.left + x
+//	const cy = rect.top + y
+//	cursorPreview.style.left = `${cx-brushSize/2}px`
+//	cursorPreview.style.top = `${cy-brushSize/2}px`
+//	cursorPreview.style.width = `${brushSize}px`
+//	cursorPreview.style.height = `${brushSize}px`
+//	cursorPreview.style.background = tool === 'eraser' ? '#ffffff' : color
+//	cursorPreview.style.display = myRole === 'leader' ? 'block' : 'none'
+//}
+// ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
-	const rect = canvas.getBoundingClientRect()
-	const cx = rect.left + x
-	const cy = rect.top + y
-	cursorPreview.style.left = `${cx-brushSize/2}px`
-	cursorPreview.style.top = `${cy-brushSize/2}px`
-	cursorPreview.style.width = `${brushSize}px`
-	cursorPreview.style.height = `${brushSize}px`
-	cursorPreview.style.background = tool === 'eraser' ? '#ffffff' : color
-	cursorPreview.style.display = myRole === 'leader' ? 'block' : 'none'
+  // Игрок — обычный курсор, превью скрыто
+  if (myRole !== 'leader') {
+    cursorPreview.style.display = 'none';
+    canvas.style.cursor = 'default';
+    return;
+  }
+
+  // Лидер — скрываем системный курсор и показываем кружок
+  canvas.style.cursor = 'none';
+
+  // позиционируем относительно #canvasWrap
+  const wrapRect = canvasWrap.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+
+  const offsetX = canvasRect.left - wrapRect.left;
+  const offsetY = canvasRect.top  - wrapRect.top;
+
+  const left = offsetX + x - brushSize / 2;
+  const top  = offsetY + y - brushSize / 2;
+
+  cursorPreview.style.left = `${left}px`;
+  cursorPreview.style.top = `${top}px`;
+  cursorPreview.style.width = `${brushSize}px`;
+  cursorPreview.style.height = `${brushSize}px`;
+  cursorPreview.style.background = (tool === 'eraser') ? '#ffffff' : color;
+  cursorPreview.style.display = 'block';
 }
 
 // ====== Рисование (с фиксом выхода за границы) ======
@@ -187,7 +216,7 @@ window.addEventListener('mousemove', e => {
 	const within = isPointerOverCanvas(e)
 	const p = clampToCanvas(getCanvasPos(e))
 	if (within) updateCursorPreview(p.x, p.y)
-	else cursorPreview.style.display = 'default'
+	else cursorPreview.style.display = 'none'
 
 	if (!drawing || !last || tool === 'fill') return
 
@@ -344,6 +373,10 @@ ws.onmessage = e => {
 		playerRoleEl.textContent = myRole === 'leader' ? 'Лидер' : 'Игрок'
 		roleBar.textContent = `Роль: ${myRole === 'leader' ? 'Лидер' : 'Игрок'}`
 		// Лидеру слово придёт отдельным сообщением "word"
+
+		// курсор и превью по роли
+  		canvas.style.cursor = (myRole === 'leader') ? 'none' : 'default';
+  		if (myRole !== 'leader') cursorPreview.style.display = 'none';
 		return
 	}
 
