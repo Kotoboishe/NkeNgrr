@@ -83,7 +83,7 @@ wss.on('connection', (ws) => {
     if (!leader) startNewRound(ws)
     else {
         ws.send(JSON.stringify({ type: 'role', role: 'player', name: ws.name }))
-        drawHistory.forEach(raw => ws.send(raw))
+        drawHistory.forEach(raw => ws.send(JSON.stringify(raw)))
     }
 
     sendPlayerListToAll()
@@ -106,8 +106,8 @@ wss.on('connection', (ws) => {
             case 'draw':
             case 'fill':
                 if (ws !== leader) return
-                drawHistory.push(raw)
-                broadcastExcept(raw, ws)
+                drawHistory.push(msg)
+                broadcastExcept(msg, ws)
                 break
 
             case 'clear-canvas':
