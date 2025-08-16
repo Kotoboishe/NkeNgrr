@@ -369,9 +369,14 @@ ws.onmessage = e => {
 		playerNameEl.textContent = myName
 
 		// обновляем верхний бар с ролью
+		playerRoleEl.textContent = myRole
 		roleBar.textContent = myRole
-			? `Роль: ${myRole === 'leader' ? 'Лидер' : 'Игрок'}`
-			: 'Роль: —'
+		// можно добавить цвет или класс в зависимости от роли
+		if (myRole === 'leader') {
+			roleBar.style.backgroundColor = '#FFDD00' // например желтый для лидера
+		} else {
+			roleBar.style.backgroundColor = '#432222ff' // серый для обычного игрока
+		}
 
 		// курсор и превью по роли
 		canvas.style.cursor = myRole === 'leader' ? 'none' : 'default'
