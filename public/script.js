@@ -141,15 +141,18 @@ clearCanvasBtn.onclick = () => {
 	ws.send(JSON.stringify({ type: 'clear-canvas' }))
 }
 
-//размер холста
-//function resizeCanvas() {
-//    const canvasWrap = document.getElementById('canvasWrap');
-//    const canvas = document.getElementById('canvas');
-//    canvas.width = canvasWrap.clientWidth;
-//    canvas.height = canvasWrap.clientHeight;
-//}
-//window.addEventListener('resize', resizeCanvas);
-//window.addEventListener('load', resizeCanvas);
+// Отображение роли
+
+function updateRoleBar() {
+    const roleBar = document.getElementById('roleBar');
+    if (myRole === "leader") {
+        roleBar.textContent = "Ведущий";
+    } else if (myRole === "player") {
+        roleBar.textContent = "Игрок";
+    } else {
+        roleBar.textContent = "";
+    }
+}
 
 // ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
@@ -369,8 +372,7 @@ ws.onmessage = e => {
 		playerNameEl.textContent = myName
 
 		// обновляем верхний бар с ролью
-		playerRoleEl.textContent = myRole
-		roleBar.textContent = myRole
+		updateRoleBar();
 		// можно добавить цвет или класс в зависимости от роли
 		if (myRole === 'leader') {
 			roleBar.style.backgroundColor = '#FFDD00' // например желтый для лидера
