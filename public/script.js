@@ -14,8 +14,8 @@ const cursorPreview = document.getElementById('cursorPreview')
 const canvasWrap = document.getElementById('canvasWrap')
 
 const playersList = document.getElementById('playersList')
-const playerNameEl = document.getElementById('playerName')
-const playerRoleEl = document.getElementById('playerRole')
+//const playerNameEl = document.getElementById('playerName')
+//const playerRoleEl = document.getElementById('playerRole')
 const roleBar = document.getElementById('roleBar')
 const wordBar = document.getElementById('wordBar')
 
@@ -366,10 +366,10 @@ ws.onmessage = e => {
 	if (msg.type === 'role') {
 		myRole = msg.role || 'player'
 		myName = msg.name || myName
-		playerNameEl.textContent = myName
+		//playerNameEl.textContent = myName
 
 		// обновляем верхний бар с ролью
-		playerRoleEl.textContent = myRole
+		//playerRoleEl.textContent = myRole
 		roleBar.textContent = myRole
 		// можно добавить цвет или класс в зависимости от роли
 		if (myRole === 'leader') {
