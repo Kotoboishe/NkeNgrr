@@ -141,16 +141,6 @@ clearCanvasBtn.onclick = () => {
 	ws.send(JSON.stringify({ type: 'clear-canvas' }))
 }
 
-//размер холста
-//function resizeCanvas() {
-//    const canvasWrap = document.getElementById('canvasWrap');
-//    const canvas = document.getElementById('canvas');
-//    canvas.width = canvasWrap.clientWidth;
-//    canvas.height = canvasWrap.clientHeight;
-//}
-//window.addEventListener('resize', resizeCanvas);
-//window.addEventListener('load', resizeCanvas);
-
 // ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
 	// Игрок — обычный курсор, превью скрыто
