@@ -1,6 +1,6 @@
 // ====== WebSocket ======
-const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-const ws = new WebSocket(`${protocol}://${location.host}/ws`);
+const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
+const ws = new WebSocket(`${protocol}://${location.host}/ws`)
 ws.onopen = () => logSystem('Соединение установлено')
 ws.onclose = () => logSystem('Соединение закрыто')
 
@@ -45,8 +45,8 @@ let tool = 'brush' // brush | eraser | fill
 let brushSize = 8
 let color = '#000000'
 let last = null // {x,y} последняя точка для линий
-let lastX = 0;
-let lastY = 0;
+let lastX = 0
+let lastY = 0
 
 // ====== Палитра ======
 const basicColors = [
@@ -151,35 +151,34 @@ clearCanvasBtn.onclick = () => {
 //window.addEventListener('resize', resizeCanvas);
 //window.addEventListener('load', resizeCanvas);
 
-
 // ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
-  // Игрок — обычный курсор, превью скрыто
-  if (myRole !== 'leader') {
-    cursorPreview.style.display = 'none';
-    canvas.style.cursor = 'default';
-    return;
-  }
+	// Игрок — обычный курсор, превью скрыто
+	if (myRole !== 'leader') {
+		cursorPreview.style.display = 'none'
+		canvas.style.cursor = 'default'
+		return
+	}
 
-  // Лидер — скрываем системный курсор и показываем кружок
-  canvas.style.cursor = 'none';
+	// Лидер — скрываем системный курсор и показываем кружок
+	canvas.style.cursor = 'none'
 
-  // позиционируем относительно #canvasWrap
-  const wrapRect = canvasWrap.getBoundingClientRect();
-  const canvasRect = canvas.getBoundingClientRect();
+	// позиционируем относительно #canvasWrap
+	const wrapRect = canvasWrap.getBoundingClientRect()
+	const canvasRect = canvas.getBoundingClientRect()
 
-  const offsetX = canvasRect.left - wrapRect.left;
-  const offsetY = canvasRect.top  - wrapRect.top;
+	const offsetX = canvasRect.left - wrapRect.left
+	const offsetY = canvasRect.top - wrapRect.top
 
-  const left = offsetX + x - brushSize / 2;
-  const top  = offsetY + y - brushSize / 2;
+	const left = offsetX + x - brushSize / 2
+	const top = offsetY + y - brushSize / 2
 
-  cursorPreview.style.left = `${left}px`;
-  cursorPreview.style.top = `${top}px`;
-  cursorPreview.style.width = `${brushSize}px`;
-  cursorPreview.style.height = `${brushSize}px`;
-  cursorPreview.style.background = (tool === 'eraser') ? '#ffffff' : color;
-  cursorPreview.style.display = 'block';
+	cursorPreview.style.left = `${left}px`
+	cursorPreview.style.top = `${top}px`
+	cursorPreview.style.width = `${brushSize}px`
+	cursorPreview.style.height = `${brushSize}px`
+	cursorPreview.style.background = tool === 'eraser' ? '#ffffff' : color
+	cursorPreview.style.display = 'block'
 }
 
 // ====== Рисование (с фиксом выхода за границы) ======
@@ -188,8 +187,7 @@ canvas.addEventListener('mousedown', e => {
 	if (myRole !== 'leader') return
 	const p = clampToCanvas(getCanvasPos(e))
 	drawing = true
-	last = p
-	[lastX, lastY] = [e.offsetX, e.offsetY];
+	last = p[(lastX, lastY)] = [e.offsetX, e.offsetY]
 
 	if (tool === 'fill') {
 		floodFill(p.x | 0, p.y | 0, hexToRgba(color))
@@ -369,13 +367,16 @@ ws.onmessage = e => {
 		myRole = msg.role || 'player'
 		myName = msg.name || myName
 		playerNameEl.textContent = myName
-		playerRoleEl.textContent = myRole === 'leader' ? 'Лидер' : 'Игрок'
-		roleBar.textContent = `Роль: ${myRole === 'leader' ? 'Лидер' : 'Игрок'}`
-		// Лидеру слово придёт отдельным сообщением "word"
+
+		// обновляем верхний бар с ролью
+		roleBar.textContent = myRole
+			? `Роль: ${myRole === 'leader' ? 'Лидер' : 'Игрок'}`
+			: 'Роль: —'
 
 		// курсор и превью по роли
-  		canvas.style.cursor = (myRole === 'leader') ? 'none' : 'default';
-  		if (myRole !== 'leader') cursorPreview.style.display = 'none';
+		canvas.style.cursor = myRole === 'leader' ? 'none' : 'default'
+		if (myRole !== 'leader') cursorPreview.style.display = 'none'
+
 		return
 	}
 
@@ -411,11 +412,11 @@ ws.onmessage = e => {
 	}
 
 	if (msg.type === 'draw') {
-		ctx.strokeStyle = msg.color;
-        	ctx.lineWidth = msg.size;
-        	ctx.beginPath();
-        	ctx.moveTo(msg.prevX, msg.prevY);
-        	ctx.lineTo(msg.x, msg.y);
-        	ctx.stroke();
+		ctx.strokeStyle = msg.color
+		ctx.lineWidth = msg.size
+		ctx.beginPath()
+		ctx.moveTo(msg.prevX, msg.prevY)
+		ctx.lineTo(msg.x, msg.y)
+		ctx.stroke()
 	}
 }
