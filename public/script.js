@@ -141,18 +141,6 @@ clearCanvasBtn.onclick = () => {
 	ws.send(JSON.stringify({ type: 'clear-canvas' }))
 }
 
-// Отображение роли
-
-function updateRoleBar() {
-    const roleBar = document.getElementById('roleBar');
-    if (myRole === "leader") {
-        roleBar.textContent = "Ведущий";
-    } else if (myRole === "player") {
-        roleBar.textContent = "Игрок";
-    } else {
-        roleBar.textContent = "";
-    }
-}
 
 // ====== Курсор-предпросмотр ======
 function updateCursorPreview(x, y) {
@@ -372,7 +360,8 @@ ws.onmessage = e => {
 		playerNameEl.textContent = myName
 
 		// обновляем верхний бар с ролью
-		updateRoleBar();
+		roleBar.textContent = myRole ? `Слово: ${myRole}` : ''
+		
 		// можно добавить цвет или класс в зависимости от роли
 		if (myRole === 'leader') {
 			roleBar.style.backgroundColor = '#FFDD00' // например желтый для лидера
