@@ -363,8 +363,10 @@ ws.onmessage = e => {
 		roleBar.textContent = myRole
 		// можно добавить цвет или класс в зависимости от роли
 		if (myRole === 'leader') {
+			roleBar.textContent = 'Роль: Лидер'
 			roleBar.style.Color = '#2d871bff' // например желтый для лидера
 		} else {
+			roleBar.textContent = 'Роль: Игрок'
 			roleBar.style.Color = '#a2379dff' // серый для обычного игрока
 		}
 
