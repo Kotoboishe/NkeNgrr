@@ -349,6 +349,8 @@ function sendChat() {
 	chatInput.value = ''
 }
 
+JavaScript
+
 // ====== Приём сообщений от сервера ======
 ws.onmessage = e => {
 	const msg = JSON.parse(e.data)
@@ -356,16 +358,14 @@ ws.onmessage = e => {
 	if (msg.type === 'role') {
 		myRole = msg.role || 'player'
 		myName = msg.name || myName
-		//playerNameEl.textContent = myName
 
-		// обновляем верхний бар с ролью
-		//playerRoleEl.textContent = myRole
-		roleBar.textContent = myRole
-		// можно добавить цвет или класс в зависимости от роли
+		// обновляем верхний бар с ролью и цветом текста
 		if (myRole === 'leader') {
-			roleBar.style.backgroundColor = '#FFDD00' // например желтый для лидера
+			roleBar.textContent = 'Роль: Лидер'
+			roleBar.style.color = '#2b6e3aff' // цвет текста для лидера
 		} else {
-			roleBar.style.backgroundColor = '#432222ff' // серый для обычного игрока
+			roleBar.textContent = 'Роль: Игрок'
+			roleBar.style.color = '#631b44ff' // цвет текста для игрока
 		}
 
 		// курсор и превью по роли
