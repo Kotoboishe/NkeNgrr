@@ -63,7 +63,7 @@ function startNewRound(newLeader) {
             c.role = 'player'
             c.send(JSON.stringify({ type: 'role', role: 'player', name: c.name }))
             c.send(JSON.stringify({ type: 'clear-canvas' }))
-            //c.send(JSON.stringify({ type: 'word', word: '' }))
+            c.send(JSON.stringify({ type: 'word', word: '' }))
         }
     })
     sendPlayerListToAll()
