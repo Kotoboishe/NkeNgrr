@@ -379,7 +379,12 @@ ws.onmessage = e => {
 
 	if (msg.type === 'word') {
 		currentWord = msg.word || ''
-		if (myRole === 'leader') {wordBar.textContent = currentWord ? `Слово: ${currentWord}` : ''}
+		if (myRole === 'leader') {
+			wordBar.textContent = currentWord ? `Слово: ${currentWord}` : ''
+		}
+		else {
+			wordBar.textContent = ''
+		}
 		return
 	}
 
