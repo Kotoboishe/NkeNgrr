@@ -364,10 +364,10 @@ ws.onmessage = e => {
 		// можно добавить цвет или класс в зависимости от роли
 		if (myRole === 'leader') {
 			roleBar.textContent = 'Роль: Лидер'
-			roleBar.style.Color = '#2d871bff' // например желтый для лидера
+			roleBar.style.color = '#c47c17ff' // например желтый для лидера
 		} else {
 			roleBar.textContent = 'Роль: Игрок'
-			roleBar.style.Color = '#a2379dff' // серый для обычного игрока
+			roleBar.style.color = '#b5b0b5ff' // серый для обычного игрока
 		}
 
 		// курсор и превью по роли
@@ -379,7 +379,7 @@ ws.onmessage = e => {
 
 	if (msg.type === 'word') {
 		currentWord = msg.word || ''
-		wordBar.textContent = currentWord ? `Слово: ${currentWord}` : ''
+		if (myRole === 'leader') {wordBar.textContent = currentWord ? `Слово: ${currentWord}` : ''}
 		return
 	}
 
