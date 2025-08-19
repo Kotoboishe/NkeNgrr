@@ -36,10 +36,26 @@ const toolEraser = document.getElementById('toolEraser')
 const toolFill = document.getElementById('toolFill')
 const clearCanvasBtn = document.getElementById('clearCanvas')
 
+//function resizeCanvas() {
+//  const wrap = document.getElementById("canvasWrap")
+//  canvas.width = wrap.clientWidth
+//  canvas.height = wrap.clientHeight
+//}
+
 function resizeCanvas() {
-  const wrap = document.getElementById("canvasWrap")
-  canvas.width = wrap.clientWidth
-  canvas.height = wrap.clientHeight
+    // создаём временный буфер
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.drawImage(canvas, 0, 0);
+
+    // задаём новые размеры
+    canvas.width = window.innerWidth * 0.75;
+    canvas.height = window.innerHeight * 0.8;
+
+    // вставляем старое изображение с масштабированием
+    ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, canvas.width, canvas.height);
 }
 
 window.addEventListener("resize", resizeCanvas)
