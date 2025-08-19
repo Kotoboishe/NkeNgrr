@@ -104,11 +104,15 @@
 			<section class="flex-1 flex overflow-hidden min-h-0">
 				
 				<div
-					class="flex-1 overflow-auto bg-zinc-900 flex items-center justify-center relative"
+					class="flex-1 bg-zinc-900 flex items-center justify-center relative"
 				>
+				
 					<!-- Обёртка, чтобы курсор-предпросмотр позиционировать абсолютно -->
-					<div id="canvasWrap" class="relative inline-block">
-						<canvas id="canvas" width="1200" height="800" class="bg-white rounded shadow-lg" ></canvas>
+					<!--<div id="canvasWrap" class="relative inline-block">
+						<canvas id="canvas" width="1200" height="800" class="bg-white rounded shadow-lg" ></canvas>-->
+
+						<div id="canvasWrap" class="relative w-full h-full">
+      						<canvas id="canvas" class="w-full h-full bg-white rounded shadow-lg"></canvas>
 						<!-- кастомный курсор -->
 						<div
 							id="cursorPreview"

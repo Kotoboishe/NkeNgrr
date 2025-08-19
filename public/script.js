@@ -36,6 +36,15 @@ const toolEraser = document.getElementById('toolEraser')
 const toolFill = document.getElementById('toolFill')
 const clearCanvasBtn = document.getElementById('clearCanvas')
 
+function resizeCanvas() {
+  const wrap = document.getElementById("canvasWrap")
+  canvas.width = wrap.clientWidth
+  canvas.height = wrap.clientHeight
+}
+
+window.addEventListener("resize", resizeCanvas)
+resizeCanvas() // вызвать сразу при загрузке
+
 // ====== Состояние ======
 let myRole = 'player'
 let myName = '—'
