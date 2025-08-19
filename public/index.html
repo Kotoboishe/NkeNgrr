@@ -20,10 +20,10 @@
 		<div id="wordBar" class="text-amber-400 font-semibold text-xl tracking-wide"></div> 
 		</header>
 
-		<main class="flex-1 flex overflow-hidden">
+		<main class="flex-1 flex overflow-hidden min-h-0">
 			<!-- Левая панель инструментов -->
 			<aside
-				class="w-64 shrink-0 bg-zinc-850 bg-zinc-800/60 backdrop-blur px-4 py-3 overflow-auto border-r border-zinc-700"
+				class="w-64 shrink-0 bg-zinc-850 bg-zinc-800/60 backdrop-blur px-4 py-3 overflow-auto border-r border-zinc-700 min-h-0"
 			>
 				<h2 class="text-lg font-semibold mb-3">Инструменты</h2>
 
@@ -101,7 +101,7 @@
 			</aside>
 
 			<!-- Центр: холст  -->
-			<section class="flex-1 flex overflow-hidden">
+			<section class="flex-1 flex overflow-hidden min-h-0">
 				
 				<div
 					class="flex-1 overflow-auto bg-zinc-900 flex items-center justify-center relative"
@@ -118,21 +118,26 @@
 				</div>
 
 				<!-- Правая панель: чат -->
-				<aside class="w-80 shrink-0 bg-zinc-800 border-l border-zinc-700 px-4 py-3 flex flex-col h-screen">
+				<aside class="w-80 shrink-0 bg-zinc-800 border-l border-zinc-700 px-4 py-3 flex flex-col h-full">
   					<!-- Список игроков -->
-  					<div class="mb-4">
+					<div class="px-4 py-3 border-b border-zinc-700 shrink-0">
     					<h2 class="text-lg font-semibold mb-3">Игроки</h2>
     					<ul id="playersList" class="space-y-1"></ul>
   					</div>
 
+  					<!--<div class="mb-4">
+    					<h2 class="text-lg font-semibold mb-3">Игроки</h2>
+    					<ul id="playersList" class="space-y-1"></ul>
+  					</div>-->
+
   					<!-- Чат -->
-  					<div class="flex-1 flex flex-col min-h-0">
+  					<div class="flex-1 min-h-0 flex flex-col px-4 py-3">
     					<h2 class="text-lg font-semibold mb-3">Чат</h2>
 
     					<!-- Сам чат (растягивается и скроллится) -->
     					<div
       						id="chatBox"
-      						class="flex-1 overflow-y-auto space-y-1 bg-zinc-900/40 rounded border border-zinc-700 p-2 break-words"
+      						class="flex-1 min-h-0 overflow-y-auto space-y-1 bg-zinc-900/40 rounded border border-zinc-700 p-2 break-words"
     					></div>
 
     				<!-- Поле ввода -->
