@@ -23,10 +23,15 @@ let currentWord = ''
 let drawHistory = [] // JSON сообщений draw/fill
 
 // ====== Слова для угадывания ======
-const words = ["кот","собака","машина","дом","дерево","река","солнце","мост","телевизор","крокодил"]
+//const words = ["кот","собака","машина","дом","дерево","река","солнце","мост","телевизор","крокодил"]
+import words from './words.json' assert { type: "json" };
+//function chooseWord() {
+//    return words[Math.floor(Math.random() * words.length)]
+//}
 
 function chooseWord() {
-    return words[Math.floor(Math.random() * words.length)]
+  const randomIndex = Math.floor(Math.random() * words.length);
+  return words[randomIndex];
 }
 
 // ====== Вспомогательные функции ======
