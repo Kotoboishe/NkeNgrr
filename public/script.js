@@ -262,15 +262,30 @@ function isPointerOverCanvas(e) {
 		e.clientY <= r.bottom
 	)
 }
-function drawDot(x, y, brushSize, color, erase = false) {
+//function drawDot(x, y, brushSize, color, erase = false) {
+//	ctx.save()
+//	ctx.globalCompositeOperation = erase ? 'destination-out' : 'source-over'
+//	ctx.beginPath()
+//	ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2)
+//	ctx.fillStyle = erase ? 'rgba(0,0,0,1)' : color
+//	ctx.fill()
+//	ctx.restore()
+//}
+function drawDot(x, y, size, color, erase = false) {
 	ctx.save()
 	ctx.globalCompositeOperation = erase ? 'destination-out' : 'source-over'
 	ctx.beginPath()
-	ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2)
-	ctx.fillStyle = erase ? 'rgba(0,0,0,1)' : color
-	ctx.fill()
+	ctx.arc(x, y, size / 2, 0, Math.PI * 2)
+	if (!erase) {
+		ctx.fillStyle = color
+		ctx.fill()
+	} else {
+		ctx.fill()
+	}
 	ctx.restore()
 }
+
+
 function strokeSegment(x0, y0, x1, y1, brushSize, color, erase = false) {
 	// Шаг ~ половина радиуса, чтобы без дыр
 	const step = Math.max(1, Math.floor(brushSize / 2))
@@ -285,6 +300,8 @@ function strokeSegment(x0, y0, x1, y1, brushSize, color, erase = false) {
 		drawDot(x, y, brushSize, color, erase)
 	}
 }
+
+
 function clearCanvas() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
@@ -419,9 +436,16 @@ ws.onmessage = e => {
 	}
 
 	if (msg.type === 'draw') {
-	
 		const erase = msg.tool === 'eraser'
-		strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
+		if (msg.prevX !== undefined && msg.prevY !== undefined) {
+			// обычная линия
+			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
+		} else {
+			// одиночная точка
+			drawDot(msg.x, msg.y, msg.size, msg.color, erase)
+	}
+		//const erase = msg.tool === 'eraser'
+		//strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
 		
 
 ctx.stroke();
