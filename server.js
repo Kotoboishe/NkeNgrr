@@ -31,7 +31,7 @@ const words = require('./words.json');
 
 function chooseWord() {
   const randomIndex = Math.floor(Math.random() * words.length);
-  return words[randomIndex];
+  return words[randomIndex].word;
 }
 
 // ====== Вспомогательные функции ======
