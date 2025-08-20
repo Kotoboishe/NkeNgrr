@@ -276,12 +276,8 @@ function drawDot(x, y, size, color, erase = false) {
 	ctx.globalCompositeOperation = erase ? 'destination-out' : 'source-over'
 	ctx.beginPath()
 	ctx.arc(x, y, size / 2, 0, Math.PI * 2)
-	if (!erase) {
-		ctx.fillStyle = color
-		ctx.fill()
-	} else {
-		ctx.fill()
-	}
+	ctx.fillStyle = erase ? "rgba(0,0,0,1)" : color; // чёрный не важен, всё равно "вырезается"
+    ctx.strokeStyle = "transparent"; // <-- отключаем обводку
 	ctx.restore()
 }
 
@@ -439,10 +435,10 @@ ws.onmessage = e => {
 		const erase = msg.tool === 'eraser'
 		if (msg.prevX !== undefined && msg.prevY !== undefined) {
 			// обычная линия
-			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, msg.tool)
+			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
 		} else {
 			// одиночная точка
-			drawDot(msg.x, msg.y, msg.size, msg.color, msg.tool)
+			drawDot(msg.x, msg.y, msg.size, msg.color, erase)
 	}
 		//const erase = msg.tool === 'eraser'
 		//strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
