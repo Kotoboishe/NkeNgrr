@@ -102,11 +102,11 @@ wss.on('connection', (ws) => {
         switch(msg.type) {
             case 'chat':
                 if (ws.role !== 'leader' && normalize(msg.text) === normalize(currentWord) && currentWord) {
-                    broadcast({ type: 'system', text: `${ws.name} угадал слово "${currentWord}"!` })
+                    broadcast({ type: 'chat', text: `${ws.name} угадал слово "${currentWord}"!` })
                     startNewRound(ws)
                     return
                 }
-                broadcast({ type: 'chat', text: `${ws.name}: ${msg.text}` })
+                broadcast({ type: 'chat', text: `💡 ${ws.name}: ${msg.text}` })
                 break
 
             case 'draw':
