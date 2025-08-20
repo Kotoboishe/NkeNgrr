@@ -425,6 +425,7 @@ ws.onmessage = e => {
 
 	if (msg.type === 'draw') {
 		const erase = msg.tool === 'eraser'
+
 		if (msg.prevX !== undefined && msg.prevY !== undefined) {
 			// обычная линия
 			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
@@ -436,7 +437,7 @@ ws.onmessage = e => {
 		//strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
 		
 
-ctx.stroke();
+
 
 	}
 }
