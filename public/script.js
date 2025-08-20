@@ -195,7 +195,7 @@ canvas.addEventListener('mousedown', e => {
 	}
 
 	// точка старта (круг)
-	drawDot(p.x, p.y, tool === 'eraser')
+	drawDot(p.x, p.y, brushSize, color, tool === 'eraser')
 	ws.send(
 		JSON.stringify({
 			type: 'draw',
@@ -217,7 +217,7 @@ window.addEventListener('mousemove', e => {
 	if (!drawing || !last || tool === 'fill') return
 
 	// Рисуем сглаженную линию кругами вдоль сегмента без разрывов
-	strokeSegment(last.x, last.y, p.x, p.y, tool === 'eraser')
+	strokeSegment(last.x, last.y, p.x, p.y, brushSize, color, tool === 'eraser')
 
 	ws.send(
 		JSON.stringify({
@@ -262,7 +262,7 @@ function isPointerOverCanvas(e) {
 		e.clientY <= r.bottom
 	)
 }
-function drawDot(x, y, erase = false) {
+function drawDot(x, y, brushSize, color, erase = false) {
 	ctx.save()
 	ctx.globalCompositeOperation = erase ? 'destination-out' : 'source-over'
 	ctx.beginPath()
@@ -271,7 +271,7 @@ function drawDot(x, y, erase = false) {
 	ctx.fill()
 	ctx.restore()
 }
-function strokeSegment(x0, y0, x1, y1, erase = false) {
+function strokeSegment(x0, y0, x1, y1, brushSize, color, erase = false) {
 	// Шаг ~ половина радиуса, чтобы без дыр
 	const step = Math.max(1, Math.floor(brushSize / 2))
 	const dx = x1 - x0,
@@ -282,7 +282,7 @@ function strokeSegment(x0, y0, x1, y1, erase = false) {
 		const t = i / steps
 		const x = x0 + dx * t
 		const y = y0 + dy * t
-		drawDot(x, y, erase)
+		drawDot(x, y, brushSize, color, erase)
 	}
 }
 function clearCanvas() {
@@ -419,11 +419,12 @@ ws.onmessage = e => {
 	}
 
 	if (msg.type === 'draw') {
-		ctx.strokeStyle = msg.color
-		ctx.lineWidth = msg.size
-		ctx.beginPath()
-		ctx.moveTo(msg.prevX, msg.prevY)
-		ctx.lineTo(msg.x, msg.y)
-		ctx.stroke()
+	
+		const erase = msg.tool === 'eraser'
+		strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
+		
+
+ctx.stroke();
+
 	}
 }
