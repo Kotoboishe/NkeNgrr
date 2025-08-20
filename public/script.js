@@ -439,10 +439,10 @@ ws.onmessage = e => {
 		const erase = msg.tool === 'eraser'
 		if (msg.prevX !== undefined && msg.prevY !== undefined) {
 			// обычная линия
-			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
+			strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, msg.tool)
 		} else {
 			// одиночная точка
-			drawDot(msg.x, msg.y, msg.size, msg.color, erase)
+			drawDot(msg.x, msg.y, msg.size, msg.color, msg.tool)
 	}
 		//const erase = msg.tool === 'eraser'
 		//strokeSegment(msg.prevX, msg.prevY, msg.x, msg.y, msg.size, msg.color, erase)
