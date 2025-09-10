@@ -63,9 +63,9 @@
   { "word": "музыка", "difficulty": "easy", "categories": [] },
   { "word": "танец", "difficulty": "easy", "categories": [] },
   { "word": "спорт", "difficulty": "easy", "categories": [] },
-  { "word": "кино", "difficulty": "easy", "categories": [] }
+  { "word": "кино", "difficulty": "easy", "categories": [] },
 
-{ "word": "Стол", "difficulty": "easy", "categories": ["Предметы"] },
+  { "word": "Стол", "difficulty": "easy", "categories": ["Предметы"] },
   { "word": "Стул", "difficulty": "easy", "categories": ["Предметы"] },
   { "word": "Кровать", "difficulty": "easy", "categories": ["Предметы"] },
   { "word": "Шкаф", "difficulty": "easy", "categories": ["Предметы"] },
